@@ -14,7 +14,7 @@ add_theme_support( 'mai-theme-engine' );
  * This auto-installs Mai Theme Engine plugin,
  * which is required for the theme to function properly.
  *
- * @version 1.3.2
+ * @version 1.4.2
  */
 require_once 'includes/dependencies/wp-dependency-installer.php';
 WP_Dependency_Installer::instance()->run( dirname( __FILE__ ) . '/includes/dependencies' );
@@ -36,7 +36,7 @@ foreach ( glob( dirname( __FILE__ ) . '/includes/*.php' ) as $file ) { include $
 // Enqueue CSS files.
 add_action( 'wp_enqueue_scripts', 'maitheme_enqueue_fonts' );
 function maitheme_enqueue_fonts() {
-	wp_enqueue_style( 'maitheme-google-fonts', '//fonts.googleapis.com/css?family=Muli:300,300i,400,400i,700,700i|Open+Sans:300,300i,400,400i,700,700i|Source+Sans+Pro:300,300i,400,400i,600,600i,700,700i', array(), CHILD_THEME_VERSION );
+	wp_enqueue_style( 'maitheme-google-fonts', '//fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,700,700i|Source+Sans+Pro:400,400i,600,600i,700,700i', array(), CHILD_THEME_VERSION );
 }
 
 // Customize the site footer text.

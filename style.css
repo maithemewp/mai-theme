@@ -15,10 +15,6 @@
 /* Table of Contents
 
 	- Defaults
-	- Structure and Layout
-	- Common Classes
-	- Content Area
-		- Entry Meta
 	- Media Queries (mobile-first)
 	- Media Queries (mobile-second)
 
@@ -29,9 +25,7 @@
 ---------------------------------------------------------------------------------------------------- */
 
 body {
-	/* font-family: 'Muli', sans-serif; */
 	font-family: 'Open Sans', sans-serif;
-	/* font-family: 'Source Sans Pro', sans-serif; */
 	font-weight: 300;
 }
 
@@ -52,36 +46,11 @@ h4, h5, h6 {
 	font-weight: 400;
 }
 
-.widgettitle
-.widget-title {
-	/* font-weight: 400; */
-}
-
 .heading {
 	text-align: inherit;
 }
 
-/* # Structure and Layout
----------------------------------------------------------------------------------------------------- */
-
-/* # Common Classes
----------------------------------------------------------------------------------------------------- */
-
 .breadcrumb {
-	-webkit-font-smoothing: antialiased;
-}
-
-/* # Site Header
----------------------------------------------------------------------------------------------------- */
-
-
-/* # Content Area
----------------------------------------------------------------------------------------------------- */
-
-/* ## Entry Meta
---------------------------------------------- */
-
-.entry-comments .comment-meta {
 	-webkit-font-smoothing: antialiased;
 }
 
