@@ -5,7 +5,8 @@ INSTALL
 1. Upload the Mai Universal Pro folder via the WordPress dashboard, Appearances > Themes > Add New or manually via FTP to your wp-content/themes/ directory. (The Genesis parent theme needs to be in the wp-content/themes/ directory as well.)
 2. Go to your WordPress dashboard and select Appearance.
 3. Activate the Mai Universal Pro via Appearances > Themes in your WordPress dashboard.
-4. Customize your site via your wordpress dashboard Appearances > Customize and configure to your liking.
+4. Delete Mai Universal Pro via Appearances > Themes in your WordPress dashboard.
+5. Customize your site via your wordpress dashboard Appearances > Customize and configure to your liking.
 
 SUPPORT
 Please visit http://support.maitheme.com/ for theme support.
