@@ -1,4 +1,4 @@
-MAI Theme
+Mai Theme
 https://maitheme.com
 
 INSTALL
