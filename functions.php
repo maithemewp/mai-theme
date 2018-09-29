@@ -1,10 +1,9 @@
 <?php
 
 // Child theme (Do not remove!).
-define( 'CHILD_THEME_NAME', 'Mai Universal Pro' );
+define( 'CHILD_THEME_NAME', 'Mai Theme' );
 define( 'CHILD_THEME_URL', 'https://maitheme.com/' );
 define( 'CHILD_THEME_VERSION', '1.0.0' );
-define( 'MAI_THEME_SP', true );
 
 // Support the Mai Theme Engine (Do not remove!).
 add_theme_support( 'mai-theme-engine' );
