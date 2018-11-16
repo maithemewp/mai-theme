@@ -12,7 +12,7 @@
  * @author    Matt Gibbs
  * @license   MIT
  * @link      https://github.com/afragen/wp-dependency-installer
- * @version   1.4.3
+ * @version   1.4.6
  */
 
 /**
@@ -49,6 +49,13 @@ if ( ! class_exists( 'WP_Dependency_Installer' ) ) {
 		 * @var string $current_slug
 		 */
 		protected $current_slug;
+
+		/**
+		 * Holds the calling plugin/theme slug.
+		 *
+		 * @var string $source
+		 */
+		protected $source;
 
 		/**
 		 * Holds names of installed dependencies for admin notices.
@@ -94,7 +101,7 @@ if ( ! class_exists( 'WP_Dependency_Installer' ) ) {
 				) {
 					return;
 				}
-				$this->config['source'] = basename( $plugin_path );
+				$this->source = basename( $plugin_path );
 				$this->load_hooks();
 				$this->register( $config );
 			}
@@ -106,10 +113,8 @@ if ( ! class_exists( 'WP_Dependency_Installer' ) ) {
 		 * @param array $config JSON config as string.
 		 */
 		public function register( $config ) {
-			$source = isset( $this->config['source'] ) ? $this->config['source'] : null;
-			unset( $this->config['source'] );
 			foreach ( $config as $dependency ) {
-				$dependency['source'] = $source;
+				$dependency['source'] = $this->source;
 				$slug                 = $dependency['slug'];
 				if ( ! isset( $this->config[ $slug ] ) || ! $dependency['optional'] ) {
 					$this->config[ $slug ] = $dependency;
@@ -161,7 +166,7 @@ if ( ! class_exists( 'WP_Dependency_Installer' ) ) {
 							$download_link = add_query_arg( 'access_token', $dependency['token'], $download_link );
 						}
 					case 'wordpress':
-						$download_link = 'https://downloads.wordpress.org/plugin/' . basename( $owner_repo ) . '.zip';
+						$download_link = $this->get_dot_org_latest_download( basename( $owner_repo ) );
 						break;
 					case 'direct':
 						$download_link = filter_var( $uri, FILTER_VALIDATE_URL );
@@ -170,6 +175,35 @@ if ( ! class_exists( 'WP_Dependency_Installer' ) ) {
 
 				$this->config[ $slug ]['download_link'] = $download_link;
 			}
+		}
+
+		/**
+		 * Get lastest download link from WordPress API.
+		 *
+		 * @param string $slug Plugin slug.
+		 * @return string $download_link
+		 */
+		private function get_dot_org_latest_download( $slug ) {
+			$download_link = get_site_transient( 'wpdi-' . md5( $slug ) );
+			if ( ! $download_link ) {
+				$url           = 'https://api.wordpress.org/plugins/info/1.1/';
+				$url           = add_query_arg(
+					[
+						'action'                     => 'plugin_information',
+						urlencode( 'request[slug]' ) => $slug,
+					],
+					$url
+				);
+				$response      = wp_remote_get( $url );
+				$response      = json_decode( wp_remote_retrieve_body( $response ) );
+				$download_link = empty( $response )
+					? "https://downloads.wordpress.org/plugin/{$slug}.zip"
+					: $response->download_link;
+
+				set_site_transient( 'wpdi-' . md5( $slug ), $download_link, DAY_IN_SECONDS );
+			}
+
+			return $download_link;
 		}
 
 		/**
@@ -325,6 +359,7 @@ if ( ! class_exists( 'WP_Dependency_Installer' ) ) {
 					'slug'    => $slug,
 					/* translators: %s: Plugin name */
 					'message' => sprintf( esc_html__( '%s has been installed and activated.' ), $this->config[ $slug ]['name'] ),
+					'source'  => $this->config[ $slug ]['source'],
 				);
 
 			}
@@ -336,6 +371,7 @@ if ( ! class_exists( 'WP_Dependency_Installer' ) ) {
 				'status'  => 'updated',
 				/* translators: %s: Plugin name */
 				'message' => sprintf( esc_html__( '%s has been installed.' ), $this->config[ $slug ]['name'] ),
+				'source'  => $this->config[ $slug ]['source'],
 			);
 		}
 
@@ -362,6 +398,7 @@ if ( ! class_exists( 'WP_Dependency_Installer' ) ) {
 				'status'  => 'updated',
 				/* translators: %s: Plugin name */
 				'message' => sprintf( esc_html__( '%s has been activated.' ), $this->config[ $slug ]['name'] ),
+				'source'  => $this->config[ $slug ]['source'],
 			);
 		}
 
@@ -479,7 +516,6 @@ if ( ! class_exists( 'WP_Dependency_Installer' ) ) {
 
 			return $actions;
 		}
-
 	}
 
 	require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
