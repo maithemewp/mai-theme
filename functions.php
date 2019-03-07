@@ -3,7 +3,7 @@
 // Child theme (Do not remove!).
 define( 'CHILD_THEME_NAME', 'Mai Theme' );
 define( 'CHILD_THEME_URL', 'https://maitheme.com/' );
-define( 'CHILD_THEME_VERSION', '1.1.0' );
+define( 'CHILD_THEME_VERSION', '1.2.0' );
 
 // Support the Mai Theme Engine (Do not remove!).
 add_theme_support( 'mai-theme-engine' );
@@ -13,10 +13,10 @@ add_theme_support( 'mai-theme-engine' );
  * This auto-installs Mai Theme Engine plugin,
  * which is required for the theme to function properly.
  *
- * @version 1.4.6
+ * composer require afragen/wp-dependency-installer
  */
-require_once 'includes/dependencies/wp-dependency-installer.php';
-WP_Dependency_Installer::instance()->run( dirname( __FILE__ ) . '/includes/dependencies' );
+include_once( __DIR__ . '/vendor/autoload.php' );
+WP_Dependency_Installer::instance()->run( __DIR__ );
 
 // Don't do anything else if the Mai Theme Engine plugin is not active.
 if ( ! class_exists( 'Mai_Theme_Engine' ) ) {
