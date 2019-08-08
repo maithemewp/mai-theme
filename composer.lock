@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "afragen/wp-dependency-installer",
-            "version": "1.4.11",
+            "version": "1.4.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/afragen/wp-dependency-installer.git",
-                "reference": "59941012624fdf979b15c1b9333edb5bd080ef9d"
+                "reference": "1da29161eb4ad9646e011c972361241c4664ceda"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/afragen/wp-dependency-installer/zipball/59941012624fdf979b15c1b9333edb5bd080ef9d",
-                "reference": "59941012624fdf979b15c1b9333edb5bd080ef9d",
+                "url": "https://api.github.com/repos/afragen/wp-dependency-installer/zipball/1da29161eb4ad9646e011c972361241c4664ceda",
+                "reference": "1da29161eb4ad9646e011c972361241c4664ceda",
                 "shasum": ""
             },
             "require": {
@@ -41,13 +41,13 @@
                 },
                 {
                     "name": "Andy Fragen",
+                    "role": "Developer",
                     "email": "andy@thefragens.com",
-                    "homepage": "https://thefragens.com",
-                    "role": "Developer"
+                    "homepage": "https://thefragens.com"
                 }
             ],
             "description": "Library that helps WordPress plugin dependency management.",
-            "time": "2019-03-09T17:57:11+00:00"
+            "time": "2019-06-28T16:21:37+00:00"
         },
         {
             "name": "collizo4sky/persist-admin-notices-dismissal",
