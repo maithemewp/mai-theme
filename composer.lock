@@ -4,25 +4,25 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "19cb96e809fab30e1cedf35b38e4f363",
+    "content-hash": "845c656070aab63a431e1afc05e93403",
     "packages": [
         {
             "name": "afragen/wp-dependency-installer",
-            "version": "1.4.13",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/afragen/wp-dependency-installer.git",
-                "reference": "3eaab246f7f0ed9490294e6cfe9b17b71398d574"
+                "reference": "05ba1f94bf8268d1a66ebe6a3d510a78281d6d5d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/afragen/wp-dependency-installer/zipball/3eaab246f7f0ed9490294e6cfe9b17b71398d574",
-                "reference": "3eaab246f7f0ed9490294e6cfe9b17b71398d574",
+                "url": "https://api.github.com/repos/afragen/wp-dependency-installer/zipball/05ba1f94bf8268d1a66ebe6a3d510a78281d6d5d",
+                "reference": "05ba1f94bf8268d1a66ebe6a3d510a78281d6d5d",
                 "shasum": ""
             },
             "require": {
                 "collizo4sky/persist-admin-notices-dismissal": "^1",
-                "php": ">=5.3"
+                "php": ">=5.6"
             },
             "type": "library",
             "autoload": {
@@ -47,7 +47,7 @@
                 }
             ],
             "description": "Library that helps WordPress plugin dependency management.",
-            "time": "2019-09-08T16:08:54+00:00"
+            "time": "2019-09-16T15:45:10+00:00"
         },
         {
             "name": "collizo4sky/persist-admin-notices-dismissal",
