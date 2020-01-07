@@ -38,18 +38,3 @@ add_action( 'wp_enqueue_scripts', 'maitheme_enqueue_fonts' );
 function maitheme_enqueue_fonts() {
 	wp_enqueue_style( 'maitheme-google-fonts', '//fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,700,700i|Source+Sans+Pro:400,400i,600,600i,700,700i', array(), CHILD_THEME_VERSION );
 }
-
-// Customize the site footer text.
-add_filter( 'genesis_footer_creds_text', 'maitheme_site_footer_text' );
-function maitheme_site_footer_text( $text ) {
-	$url  = 'https://maitheme.com/';
-	$name = 'Mai Theme';
-	return sprintf( 'Copyright &copy; %s <a href="%s" title="%s">%s</a> &middot; All Rights Reserved &middot; Powered by <a rel="nofollow noopener" href="%s">%s</a>',
-		date('Y'),
-		get_bloginfo('url'),
-		get_bloginfo('name'),
-		get_bloginfo('name'),
-		$url,
-		$name
-	);
-}
