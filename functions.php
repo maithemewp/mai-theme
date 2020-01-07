@@ -3,7 +3,7 @@
 // Child theme (Do not remove!).
 define( 'CHILD_THEME_NAME', 'Mai Theme' );
 define( 'CHILD_THEME_URL', 'https://maitheme.com/' );
-define( 'CHILD_THEME_VERSION', '1.2.0' );
+define( 'CHILD_THEME_VERSION', '1.3.0' );
 
 // Support the Mai Theme Engine (Do not remove!).
 add_theme_support( 'mai-theme-engine' );
