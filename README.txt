@@ -9,12 +9,3 @@ INSTALL
 
 SUPPORT
 Please visit http://support.maitheme.com/ for theme support.
-
-CHANGELOG
-
-= 1.1.0
-* Added: noopener rel tag to footer credits.
-* Changed: Updated dependency installer to latest version.
-
-= 1.0.0 =
-* Initial release.
