@@ -1,79 +1,100 @@
-[
-    {
-        "name": "afragen/wp-dependency-installer",
-        "version": "2.0.0",
-        "version_normalized": "2.0.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/afragen/wp-dependency-installer.git",
-            "reference": "05ba1f94bf8268d1a66ebe6a3d510a78281d6d5d"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/afragen/wp-dependency-installer/zipball/05ba1f94bf8268d1a66ebe6a3d510a78281d6d5d",
-            "reference": "05ba1f94bf8268d1a66ebe6a3d510a78281d6d5d",
-            "shasum": ""
-        },
-        "require": {
-            "collizo4sky/persist-admin-notices-dismissal": "^1",
-            "php": ">=5.6"
-        },
-        "time": "2019-09-16T15:45:10+00:00",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "classmap": [
-                "wp-dependency-installer.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Andy Fragen",
-                "email": "andy@thefragens.com",
-                "homepage": "https://thefragens.com",
-                "role": "Developer"
+{
+    "packages": [
+        {
+            "name": "afragen/wp-dependency-installer",
+            "version": "2.1.1",
+            "version_normalized": "2.1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/afragen/wp-dependency-installer.git",
+                "reference": "14a5a20a8046030e43a2203f8dce55f63aa11786"
             },
-            {
-                "name": "Matt Gibbs",
-                "role": "Developer"
-            }
-        ],
-        "description": "Library that helps WordPress plugin dependency management."
-    },
-    {
-        "name": "collizo4sky/persist-admin-notices-dismissal",
-        "version": "1.4.3",
-        "version_normalized": "1.4.3.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/collizo4sky/persist-admin-notices-dismissal.git",
-            "reference": "2d7d8bb3cba631ad227c92296a4b675d7cbc71d7"
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/afragen/wp-dependency-installer/zipball/14a5a20a8046030e43a2203f8dce55f63aa11786",
+                "reference": "14a5a20a8046030e43a2203f8dce55f63aa11786",
+                "shasum": ""
+            },
+            "require": {
+                "collizo4sky/persist-admin-notices-dismissal": "^1",
+                "php": ">=5.6"
+            },
+            "time": "2020-02-22T23:25:44+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "classmap": [
+                    "wp-dependency-installer.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Andy Fragen",
+                    "email": "andy@thefragens.com",
+                    "homepage": "https://thefragens.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Matt Gibbs",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Library that helps WordPress plugin dependency management.",
+            "support": {
+                "issues": "https://github.com/afragen/wp-dependency-installer/issues",
+                "source": "https://github.com/afragen/wp-dependency-installer"
+            },
+            "install-path": "../afragen/wp-dependency-installer"
         },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/collizo4sky/persist-admin-notices-dismissal/zipball/2d7d8bb3cba631ad227c92296a4b675d7cbc71d7",
-            "reference": "2d7d8bb3cba631ad227c92296a4b675d7cbc71d7",
-            "shasum": ""
-        },
-        "time": "2019-03-12T05:19:51+00:00",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "classmap": [
-                "persist-admin-notices-dismissal.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "authors": [
-            {
-                "name": "Collins Agbonghama",
-                "email": "me@w3guy.com"
-            }
-        ],
-        "description": "Simple library to persist dismissal of admin notices across pages in WordPress dashboard."
-    }
-]
+        {
+            "name": "collizo4sky/persist-admin-notices-dismissal",
+            "version": "1.4.4",
+            "version_normalized": "1.4.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/w3guy/persist-admin-notices-dismissal.git",
+                "reference": "900739eb6b0ec0210465f5983a6d4e0e420289e4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/w3guy/persist-admin-notices-dismissal/zipball/900739eb6b0ec0210465f5983a6d4e0e420289e4",
+                "reference": "900739eb6b0ec0210465f5983a6d4e0e420289e4",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4"
+            },
+            "time": "2020-12-31T17:12:37+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "classmap": [
+                    "persist-admin-notices-dismissal.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Collins Agbonghama",
+                    "email": "me@w3guy.com",
+                    "role": "developer"
+                }
+            ],
+            "description": "Simple library to persist dismissal of admin notices across pages in WordPress dashboard.",
+            "support": {
+                "issues": "https://github.com/w3guy/persist-admin-notices-dismissal/issues",
+                "source": "https://github.com/w3guy/persist-admin-notices-dismissal"
+            },
+            "install-path": "../collizo4sky/persist-admin-notices-dismissal"
+        }
+    ],
+    "dev": true,
+    "dev-package-names": []
+}
