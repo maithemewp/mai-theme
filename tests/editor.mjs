@@ -53,20 +53,25 @@ const KNOWN_NOISE = [];
 
 const noise = ( message ) => KNOWN_NOISE.find( ( [ start ] ) => message.startsWith( start ) );
 
-// The Slot blocks a file holds, counting the parts it pulls in, since the
-// editor shows a part's blocks inside the template.
+// How many of a kind of block a file holds, counting the parts it pulls in,
+// since the editor shows a part's blocks inside the template.
 const source = ( kind, slug ) => readFileSync( `${ THEME }/${ kind }/${ slug }.html`, 'utf8' );
-const slotsIn = ( html ) => {
-	let count = ( html.match( /<!-- wp:mai\/slot[\s{/]/g ) ?? [] ).length;
+const countIn = ( html, pattern ) => {
+	let count = ( html.match( pattern ) ?? [] ).length;
 
 	for ( const [ , part ] of html.matchAll( /<!-- wp:template-part \{"slug":"([a-z0-9-]+)"/g ) ) {
 		if ( existsSync( `${ THEME }/parts/${ part }.html` ) ) {
-			count += slotsIn( source( 'parts', part ) );
+			count += countIn( source( 'parts', part ), pattern );
 		}
 	}
 
 	return count;
 };
+const slotsIn = ( html ) => countIn( html, /<!-- wp:mai\/slot[\s{/]/g );
+// Every block opener, nested ones included. Closers start `<!-- /wp:`, so
+// they never match. The editor can show more blocks than this, such as a
+// menu's links, but never fewer.
+const blocksIn = ( html ) => countIn( html, /<!-- wp:[a-z]/g );
 
 const files = [
 	...readdirSync( `${ THEME }/templates` ).filter( ( f ) => f.endsWith( '.html' ) ).map( ( f ) => [ 'templates', 'wp_template', f.slice( 0, -5 ) ] ),
@@ -257,9 +262,15 @@ try {
 	} );
 
 	// Settled once the block count holds still for three reads in a row, so
-	// the parts, which load after the template, are in.
+	// the parts, which load after the template, are in. A file that never
+	// opens, or never holds still, says so instead of passing on an empty or
+	// half-loaded list.
 	const settle = async ( id ) => {
-		await editor.waitForFunction( ( want ) => window.wp?.data?.select( 'core/editor' )?.getCurrentPostId() === want, id, { timeout: 60000 } );
+		try {
+			await editor.waitForFunction( ( want ) => window.wp?.data?.select( 'core/editor' )?.getCurrentPostId() === want, id, { timeout: 60000 } );
+		} catch {
+			return { settled: false, blocks: [] };
+		}
 
 		let last = -1;
 		let steady = 0;
@@ -271,7 +282,7 @@ try {
 			last = count;
 		}
 
-		return collect();
+		return { settled: steady >= 3, blocks: await collect() };
 	};
 
 	for ( const [ folder, type, slug ] of files ) {
@@ -279,7 +290,12 @@ try {
 		const file = `${ folder }/${ slug }.html`;
 
 		await editor.goto( `${ BASE }/wp-admin/site-editor.php?p=${ encodeURIComponent( `/${ type }/${ id }` ) }&canvas=edit` );
-		const blocks = await settle( id );
+		const { settled, blocks } = await settle( id );
+		const html = source( folder, slug );
+
+		check( `${ file } opens in the editor and its blocks settle`, settled );
+		check( `${ file } loads at least its ${ blocksIn( html ) } blocks`, blocks.length >= blocksIn( html ) ? blocksIn( html ) : blocks.length, blocksIn( html ) );
+
 		const invalid = blocks.filter( ( b ) => false === b.isValid );
 
 		check( `${ file } opens with no invalid blocks`, invalid.map( ( b ) => b.path ), [] );
@@ -288,7 +304,7 @@ try {
 			console.log( `       ${ b.path }\n       file:   ${ b.original }\n       editor: ${ b.saved }` );
 		}
 
-		check( `${ file } shows its ${ slotsIn( source( folder, slug ) ) } Slot blocks`, blocks.filter( ( b ) => 'mai/slot' === b.name ).length, slotsIn( source( folder, slug ) ) );
+		check( `${ file } shows its ${ slotsIn( html ) } Slot blocks`, blocks.filter( ( b ) => 'mai/slot' === b.name ).length, slotsIn( html ) );
 	}
 
 	const patterns = await editor.evaluate( async () => ( await wp.data.resolveSelect( 'core' ).getBlockPatterns() ).map( ( p ) => [ p.name, p.templateTypes ?? [] ] ) );
