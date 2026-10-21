@@ -6,6 +6,7 @@
 - [ ] **Approve the first push.** `v3` becomes `main` and v1 moves to a `v1` branch on `maithemewp/mai-theme`. Pushing, tagging, and releasing each need his yes.
 - [ ] **Make Mai Content Areas public with an updater,** and `main` as the stable branch, the way Mai Columns ships. The installer needs it before the theme goes on a real site. Making the repo public needs his explicit go-ahead.
 - [ ] **Switch the path repositories to GitHub and commit `vendor/`.** That covers `mai-theme-core` here, and the engine packages in Mai Content Areas. Regenerate `composer.lock` after, because it pins the local path package today.
+- [ ] **Name the optional Mai plugins.** The spec lists optional plugins, such as Mai Performance Images and Mai Site Help, that the installer does not offer yet. It waits on Mike to name the list.
 - [ ] **Decide the three calls made overnight:**
   - **"Archive: List" drops the Search and Blog headings,** because it uses an archive title and one pattern serves four templates. Split it per template, or accept it.
   - **The With sidebar padding reset covers only that template.** A full-width background group in its content loses its side padding, and the entry part in other Mai Columns layouts would show a gap. Widen the reset, or keep it narrow.
@@ -30,6 +31,5 @@
 **In `mai-theme-core`:**
 - [ ] **Pick one hook string style.** `'\\name'` and `'\name'` are both used.
 - [ ] **Guard `filemtime()` returning false,** in `setup.php` and `block-css.php`. The version string would end in a dot or be empty.
-- [ ] **Add a test where a nested legacy rule is not the first.** Correct the `legacy-css.php` docblock that overclaims, and say the brace guard is belt and braces.
-- [ ] **Fix the `dependencies()` docblock.** Its example name depends on the theme's folder name.
+- [ ] **Fix the `dependencies()` docblock.** Its example name depends on the theme's folder name, and it says Mai Columns builds the footer, which it no longer does.
 - [ ] **Tag a first release** only when the plumbing settles, with Mike's yes.

@@ -11,7 +11,7 @@ A block theme starter for sites built on Mai Content Areas. Every Mai Slots loca
 - **PHP 8.4.** The Mai Slots engine requires it.
 - **WordPress 7.0.** The mobile menu uses the navigation overlay part area that 7.0 added.
 - **Mai Content Areas.** It carries the Mai Slots engine. Without it, Slot blocks render nothing on the front end, and the Site Editor shows a "doesn't include support" box in each slot's place.
-- **Mai Columns.** It builds the header, the footer, and the With sidebar layout.
+- **Mai Columns.** It builds the header, the post navigation, and the With sidebar layout.
 - **Composer,** to install the theme's plumbing package.
 
 ## The required plugins
@@ -29,7 +29,7 @@ To add, change, or remove a required plugin, use the `mai_theme_dependencies` fi
 ## What is in the box
 
 - **Eight standard templates:** `index`, `home`, `front-page`, `page`, `single`, `archive`, `search`, and `404`.
-- **Five custom templates,** offered on posts and pages: Blank, Canvas, Wide, Narrow, and With sidebar.
+- **Five custom templates,** offered on posts and pages: Blank, Canvas, Wide, Narrow, and With sidebar. Blank and Canvas show the content only, with no post navigation or comments, by design.
 - **Six template parts:** header, footer, mobile menu, sidebar, entry, and posts grid.
 - **Two layout patterns,** for swapping a whole template in the Site Editor: "Post: With sidebar" and "Archive: List".
 - **One block style:** Alt Heading, on Heading and Paragraph blocks.
@@ -37,39 +37,70 @@ To add, change, or remove a required plugin, use the `mai_theme_dependencies` fi
 
 Every Slot block in the templates is locked against removal. Deleting one silently stops every content area aimed at it. Moving one is fine.
 
+The "Blog" heading on the posts page is fixed text in `templates/home.html`, so a site whose posts page has another name changes it there.
+
 ## Start a client site
 
-Do this once per client.
+Do this once per client. Rename a client copy only by editing `style.css` and naming its folder. A search and replace across the files would also rewrite `maithemewp/mai-theme-core` in `composer.json`.
 
 **Warning:** Do not rename the `maithemewp/mai-theme-core` package, the `Mai\Theme` namespace, or the `mai-theme-` handles. The package never reads the theme's slug.
 
 1. Copy the starter to a new folder named for the client.
 
    ```sh
-   rsync -a --exclude='.git' --exclude='.wp-test' --exclude='vendor' ~/Themes/mai-theme/ ~/Themes/acme/
+   rsync -a --exclude='.git' --exclude='.wp-test' --exclude='.superpowers' --exclude='vendor' ~/Themes/mai-theme/ ~/Themes/acme/
    ```
 
 2. Open `style.css` in the new folder.
 3. Change `Theme Name` to the client's name.
 4. Change `Text Domain` to the client's folder name.
-5. Open `composer.json` in the new folder.
-6. Change `name` to the client's package name.
-7. Install the plumbing package.
+5. Change `Version` to `1.0.0`.
+6. Change `Description` to one sentence about the client's site.
+7. Open `composer.json` in the new folder.
+8. Change `name` to the client's package name.
+9. Delete the starter's `STATE.md`, `TODO.md`, `CHANGES.md`, specs, and plans.
 
    ```sh
-   cd ~/Themes/acme && composer install
+   cd ~/Themes/acme && rm STATE.md TODO.md CHANGES.md && rm -r docs/specs/* docs/plans/*
    ```
 
-8. Open `theme.json`.
-9. Set the client's colours under `settings.color.palette`.
-10. Set the client's fonts under `settings.typography.fontFamilies`.
-11. Set the client's shadows under `settings.shadow.presets`.
-12. Set the site's main radius, `default`, under `settings.border.radiusSizes`.
-13. Activate the theme in wp-admin.
-14. Load any wp-admin page.
-15. Wait for the installer to add the required plugins.
+10. Write a new `STATE.md`, `TODO.md`, and `CHANGES.md` for the client.
+11. Start the client's own git repository.
+
+    ```sh
+    cd ~/Themes/acme && git init
+    ```
+
+12. Install the plumbing package.
+
+    ```sh
+    cd ~/Themes/acme && composer install
+    ```
+
+13. Open `theme.json`.
+14. Set the client's colours under `settings.color.palette`.
+15. Set the client's fonts under `settings.typography.fontFamilies`.
+16. Set the client's shadows under `settings.shadow.presets`.
+17. Set the site's main radius, `default`, under `settings.border.radiusSizes`.
+18. Activate the theme in wp-admin.
+19. Load any wp-admin page.
+20. Wait for the installer to add the required plugins.
+21. Go to **Appearance > Editor**.
+
+**Warning:** A Navigation block with no menu chosen shows the most recently published menu. If you skip the next steps, a menu made later, such as a footer menu, takes over the header.
+
+22. Open the **Header** template part.
+23. Select the Navigation block.
+24. Choose the client's main menu in the block settings.
+25. Click **Save**.
+26. Open the **Mobile menu** template part.
+27. Select the Navigation block.
+28. Choose the same menu in the block settings.
+29. Click **Save**.
 
 Keep the existing preset slugs. Patterns and templates refer to them by name.
+
+The menu choice saves to the database, not to the theme's files. Leave it there: a menu's ID is different on every site.
 
 ## Give every single post the sidebar
 
@@ -109,7 +140,7 @@ This saves to the database, not to a file. Save it back to the theme with Create
 
 ## Bring starter fixes into a client site
 
-Fixes to the plumbing ship in the `maithemewp/mai-theme-core` package. Until the first release the package is a local path repository, so this procedure starts after the switch to GitHub. Step 4 needs the test site from "Testing".
+Fixes to the plumbing ship in the `maithemewp/mai-theme-core` package. Until the first release the package is a local path repository, so this procedure starts after the switch to GitHub. Running the checks needs the test site from "Testing".
 
 1. Open a terminal in the client's theme folder.
 2. Update the package.
@@ -159,7 +190,7 @@ It needs Mai Content Areas and Mai Columns checked out in `~/Plugins`, each with
    ./tests/setup.sh --run
    ```
 
-Step 1 downloads WordPress, so it takes a minute. Step 2 reuses the site.
+Building the site downloads WordPress, so it takes a minute. Running the checks again reuses the site.
 
 A passing run ends with `All checks passed.` and a clean `debug.log`. The headless Site Editor check uses port 8430. Stop anything else on that port first.
 

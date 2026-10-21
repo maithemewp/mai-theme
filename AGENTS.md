@@ -45,6 +45,7 @@ Invariants only. Each rule links to where its argument lives. If you are about t
 - **Never edit `vendor/`.** The plumbing is the `maithemewp/mai-theme-core` package. Fix it in `~/LocalPackages/mai-theme-core`, then `composer update`. → spec, "PHP"
 - **The package is never renamed,** in a client copy or anywhere. It keeps `Mai\Theme` and its `mai-theme-` handles.
 - **Named functions, never closures,** so a site can `remove_action()` them.
+- **Code in `inc/` uses the client's own namespace, never `Mai\Theme`,** which belongs to `mai-theme-core`. A function with the same name as one in the package, now or in a later release, is a fatal error. The starter's `functions.php` uses `Mai\Theme\Starter`.
 
 ## Code
 

@@ -19,7 +19,7 @@ The reasons behind each rule are in the spec, `~/Themes/mai-theme/docs/specs/202
 
 - `style.css`: the theme header, the reset, and only what `theme.json` cannot say.
 - `theme.json`: all tokens, settings, and styles.
-- `functions.php`: loads Composer's autoloader and then `inc/*.php`. Nothing else.
+- `functions.php`: loads Composer's autoloader and then `inc/*.php`. Nothing else. Its namespace is `Mai\Theme\Starter`.
 - `inc/`: the site's own PHP. Empty in the starter.
 - `templates/`, `parts/`: plain HTML files.
 - `patterns/`: layout patterns that swap a whole template.
@@ -41,7 +41,7 @@ The token names are a contract: future patterns refer to them. Add freely. Renam
 - **Palette:** `base`, `base-2`, `base-3`, `contrast`, `contrast-2`, `primary`, `primary-2`. Add `secondary` and others per client. → spec, "Palette"
 - **Font sizes:** `x-small`, `small`, `medium`, `large`, `x-large`, `xx-large`, `xxx-large`, `xxxx-large`. Written as Utopia `clamp()` strings with no `fluid` object. → spec, "Font sizes"
 - **Spacing:** slugs `10` to `80`. → spec, "Spacing"
-- **Fonts:** two families named by role, `body` and `heading`, labelled "Body: Font" and "Heading: Font". No template names a font. → spec, "Fonts"
+- **Fonts:** two families named by role, `body` and `heading`, labelled "Role: Font", as in "Body: Figtree" and "Heading: Figtree". No template names a font. → spec, "Fonts"
 - **Line height:** `settings.custom.lineHeight` with Tailwind's names and values: `none`, `tight`, `snug`, `normal`, `relaxed`, `loose`. → spec, "Line-height"
 - **Shadows:** `primary` and `secondary`, by role, never by size. → spec, "Shadows"
 - **Radius:** `default`, `half`, `quarter`, `full`. `half` and `quarter` are computed from `default`. → spec, "Radius sizes"
@@ -87,6 +87,7 @@ The token names are a contract: future patterns refer to them. Add freely. Renam
 - **Named functions, hooked with `__NAMESPACE__ . '\name'`,** never closures, so a site can `remove_action()`.
 - **`declare( strict_types=1 );`** in every PHP file, PHP 8.4, WordPress spacing inside parentheses.
 - **`inc/` is the site's own PHP.** Client features still belong in the client's own plugin.
+- **Code in `inc/` uses the client's own namespace, never `Mai\Theme`,** which belongs to `mai-theme-core`. A function there with the same name as one in the package, now or in a later release, is a fatal error.
 - **Required plugins** are Mai Content Areas and Mai Columns, installed by `afragen/wp-dependency-installer` from the package's config. The theme never bundles the engine. → spec, "Dependencies"
 - **Releases:** no tags and no pushes without Mike's yes. The theme commits `vendor/` once the package ships from GitHub. → spec, "PHP"
 
@@ -94,7 +95,7 @@ The token names are a contract: future patterns refer to them. Add freely. Renam
 
 - **Standard templates:** `index`, `home`, `front-page`, `page`, `single`, `archive`, `search`, `404`. Each is header part, `<main>` as a constrained group, then footer part.
 - **Custom templates:** Blank, Canvas, Wide, Narrow, With sidebar. There is no "Standard". → spec, "Templates"
-- **Parts:** header, footer, mobile menu, sidebar, and one shared entry part used by single, With sidebar, Wide, and Narrow.
+- **Parts:** header, footer, mobile menu, sidebar, and one shared entry part used by page, single, Wide, Narrow, and With sidebar.
 - **Every Mai Slots location gets a Slot block wherever it applies,** locked with `"lock":{"remove":true}`. Canvas has none. The list per template is in the spec. → spec, "Slot blocks in each template"
 - **Layout patterns** for swapping a whole template are hidden, list each template slug in `Template Types:`, and are `Inserter: false` when they hold Slot blocks. → spec, "Templates"
 - **Templates are plain HTML,** not one-line pattern references.
@@ -102,7 +103,8 @@ The token names are a contract: future patterns refer to them. Add freely. Renam
 
 ## Naming
 
-- **Theme slug and text domain:** the same, and the folder name. The starter is `mai-theme`, not `mai`, because a client copy is renamed by search and replace.
+- **Theme slug and text domain:** the same, and the folder name. The starter is `mai-theme`, not `mai`, because `mai` is in every `mai/` block and location id. → spec, "The repo"
+- **A client copy is renamed by editing `style.css` and its folder name only.** Never by search and replace: that would also rewrite `maithemewp/mai-theme-core` in `composer.json`.
 - **Hooks:** `mai_theme_` and underscores.
 - **Block bindings and blocks:** the `mai/` namespace, as in `mai/current-year`.
 - **Pattern slugs:** `mai-theme/` plus a hyphenated name.

@@ -9,4 +9,4 @@
 * Added: Starter block CSS for the navigation overlay, Post Template cards, and the Search block.
 * Added: Figtree, self-hosted.
 * Added: Plumbing through the `maithemewp/mai-theme-core` package, including a dependency installer for Mai Content Areas and Mai Columns.
-* Added: `./tests/setup.sh`, a throwaway test site with a smoke check, a slots check, and a headless Site Editor check.
+* Added: `./tests/setup.sh`, a throwaway test site with a smoke check, a slots check, an installer check, and a headless Site Editor check.
