@@ -12,6 +12,8 @@
   - **The With sidebar padding reset covers only that template.** A full-width background group in its content loses its side padding, and the entry part in other Mai Columns layouts would show a gap. Widen the reset, or keep it narrow.
   - **"Post: With sidebar" carries comments and post navigation.** Keep it, or make it bare.
 
+- [ ] **Decide whether to amend the spec in two places.** It still says a client copy is renamed by search and replace (section "The repo"), and that Mai Columns builds the header and footer (section "Dependencies"). The build now renames through `style.css` and the folder only, and the footer has no columns. The skill draft's "not `mai`" line points at the first of these.
+
 ## Parked by the spec
 
 - [ ] **Section styles,** until the pattern library.
@@ -27,6 +29,11 @@
 - [ ] **Measure a full-width group inside a post's With sidebar.** Only the page is measured today.
 - [ ] **Make two navigation checks fail without the CSS.** They pass without it. Core's path with no overlay part is untested too.
 - [ ] **Tidy `tests/setup.sh`.** It resolves the package folders after the slow download, writes the port in two places, and throws away log entries made during the build.
+
+- [ ] **Make the footer year check able to fail.** The footer's saved fallback text is `2026`, so the check passes this year even if the `mai/current-year` binding breaks. Store a fallback that is never the current year, or assert the binding inside the site. The package's `STATE.md` cites this check as the binding's proof.
+- [ ] **Drop "only" from the rename sentence** in the README and the skill draft. A client copy also changes `name` in `composer.json`, so "never by search and replace" is the accurate rule.
+- [ ] **Keep `docs/specs` and `docs/plans` in a fresh client copy.** The "Start a client site" procedure empties them, and they have no `.gitkeep`.
+- [ ] **Match the missing-vendor notice's text domain** to the client's, or leave it as `mai-theme` on purpose and say so.
 
 **In `mai-theme-core`:**
 - [ ] **Pick one hook string style.** `'\\name'` and `'\name'` are both used.
