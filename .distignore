@@ -3,6 +3,7 @@
 /docs/
 /tests/
 /.wp-test/
+/.superpowers/
 /AGENTS.md
 /CLAUDE.md
 /STATE.md
