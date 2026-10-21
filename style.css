@@ -1,0 +1,161 @@
+/**
+ * Theme Name:        Mai Theme
+ * Theme URI:         https://bizbudding.com/
+ * Description:       A block theme starter for Mai Slots and Mai Content Areas.
+ * Author:            BizBudding, Inc.
+ * Author URI:        https://bizbudding.com
+ * Version:           3.0.0
+ * Requires at least: 7.0
+ * Tested up to:      7.1
+ * Requires PHP:      8.4
+ * Text Domain:       mai-theme
+ * License:           GPL-2.0-or-later
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * Font Scale:        https://utopia.fyi/type/calculator/?c=400,16,1.2,1200,18,1.333,4,1,&s=0.75|0.5|0.25,1.5|2|3|4|6,s-l&g=s,l,xl,12
+ */
+
+/* Only what theme.json cannot say lives here. */
+
+/**
+ * # Root
+ */
+
+/* CSS reset from https://www.joshwcomeau.com/css/custom-css-reset/. Every rule is wrapped in
+   :where(), so it has zero specificity and anything we write ourselves still wins. */
+:where(*, *::before, *::after) {
+	box-sizing: border-box;
+}
+
+:where(*) {
+	margin: 0;
+}
+
+:where(body) {
+	-webkit-font-smoothing: antialiased;
+}
+
+:where(img, picture, video, canvas, svg) {
+	display: block;
+	max-width: 100%;
+	height: auto;
+}
+
+:where(input, button, textarea, select) {
+	font: inherit;
+}
+
+:root {
+	text-underline-offset: 2px;
+	/* Brand color on native checkboxes and radios. */
+	accent-color: var(--wp--preset--color--primary);
+}
+
+/* Short pages keep the footer at the bottom of the window. The growth goes on main, not an auto
+   margin on the footer. The admin bar is subtracted so a short page does not scroll when logged in. */
+.wp-site-blocks {
+	display: flex;
+	flex-direction: column;
+	min-height: var(--mai-theme-site-min-height, 100svh);
+}
+
+.wp-site-blocks > main {
+	flex-grow: 1;
+}
+
+.admin-bar {
+	--mai-theme-site-min-height: calc(100svh - var(--wp-admin--admin-bar--height, 0px));
+}
+
+/* No block gap between header, main and footer. Each sets its own padding. */
+:root :where(.wp-site-blocks) > :where(.wp-block-template-part, main) {
+	margin-block: 0;
+}
+
+/**
+ * # Layout
+ */
+
+/* The Wide and Narrow templates put these on their main group. Constrained layouts read this
+   variable when no contentSize is set, so the shared entry part's Post Content follows the
+   template's width and alignfull still works. */
+.mai-theme-wide {
+	--wp--style--global--content-size: var(--wp--style--global--wide-size);
+}
+
+.mai-theme-narrow {
+	--wp--style--global--content-size: 600px;
+}
+
+/**
+ * # Typography
+ */
+
+:where(h1, h2, h3, h4, h5, h6, p) {
+	text-wrap: pretty;
+}
+
+/* Line-height pairs with size here, never in theme.json: WordPress cannot bind leading to a size preset. */
+.has-xx-large-font-size,
+.has-xxx-large-font-size,
+.has-xxxx-large-font-size {
+	line-height: var(--wp--custom--line-height--none);
+}
+
+/* Long words and URLs wrap inside content only, never globally. */
+.wp-block-post-content,
+.wp-block-comment-author-name {
+	overflow-wrap: anywhere;
+}
+
+/**
+ * # Scrolling
+ */
+
+/* Core's common block CSS already ships the full .screen-reader-text rule (7.1), so there is none here. */
+
+/* Offsets jump targets, including core's #wp--skip-link--target, so a sticky header cannot hide them. */
+html {
+	scroll-padding-top: 40px;
+	/* Reserves the scrollbar gutter so page width does not shift when the scrollbar appears. */
+	scrollbar-gutter: stable;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	html {
+		scroll-behavior: smooth;
+	}
+}
+
+:target {
+	scroll-margin-top: 16px;
+}
+
+/**
+ * # Lists
+ */
+
+:where(ul, ol) {
+	padding-inline-start: var(--wp--preset--spacing--40);
+}
+
+/**
+ * # Motion
+ */
+
+/* Cross-page view transitions, skipped for people who ask for less motion. */
+@media (prefers-reduced-motion: no-preference) {
+	@view-transition {
+		navigation: auto;
+	}
+}
+
+/**
+ * # Focus
+ */
+
+/* One outline for every focusable element. Blocks that need a different one set their own. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+	outline: 2px solid var(--wp--preset--color--primary);
+	outline-offset: 2px;
+}

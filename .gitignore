@@ -1,0 +1,5 @@
+# Switches to committed at the first release, as Mai Content Areas does.
+vendor/
+.wp-test/
+node_modules/
+.DS_Store

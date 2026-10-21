@@ -1,0 +1,11 @@
+# Kept off every server by mai-sites push. One pattern per line, anchored to
+# the theme root.
+/docs/
+/tests/
+/.wp-test/
+/AGENTS.md
+/CLAUDE.md
+/STATE.md
+/TODO.md
+/composer.json
+/composer.lock

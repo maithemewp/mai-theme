@@ -1,0 +1,19 @@
+{
+    "name": "maithemewp/mai-theme",
+    "description": "A block theme starter for Mai Slots and Mai Content Areas.",
+    "type": "wordpress-theme",
+    "license": "GPL-2.0-or-later",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../LocalPackages/mai-theme-core"
+        }
+    ],
+    "require": {
+        "php": ">=8.4",
+        "maithemewp/mai-theme-core": "@dev"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
