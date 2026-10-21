@@ -193,6 +193,8 @@ $ids = json_decode(
 			"canvas"       => $make( "page", "Slots canvas page", "canvas" ),
 			"wide"         => $make( "page", "Slots wide page", "wide" ),
 			"narrow"       => $make( "page", "Slots narrow page", "narrow" ),
+			"post_wide"    => $make( "post", "Slots post on Wide", "wide" ),
+			"post_narrow"  => $make( "post", "Slots post on Narrow", "narrow" ),
 			"page_sidebar" => $make( "page", "Slots page with sidebar", "with-sidebar" ),
 			"front"        => $make( "page", "Slots front page" ),
 		] );'
@@ -216,6 +218,8 @@ $pages = [
 	[ 'page', 'page_id=' . $ids['page'], $posts_home, 200, $entry ],
 	[ 'Wide page', 'page_id=' . $ids['wide'], $posts_home, 200, $entry ],
 	[ 'Narrow page', 'page_id=' . $ids['narrow'], $posts_home, 200, $entry ],
+	[ 'Wide post', 'p=' . $ids['post_wide'], $posts_home, 200, $entry ],
+	[ 'Narrow post', 'p=' . $ids['post_narrow'], $posts_home, 200, $entry ],
 	[ 'With sidebar page', 'page_id=' . $ids['page_sidebar'], $posts_home, 200, $sidebar ],
 	[ 'With sidebar post', 'p=' . $ids['post_sidebar'], $posts_home, 200, $sidebar ],
 	[ 'Blank page', 'page_id=' . $ids['blank'], $posts_home, 200, GLOBAL_SLOTS ],
@@ -249,40 +253,6 @@ function fetch_all( array $pages ): array {
 	return $results;
 }
 
-/**
- * What debug.log gained since `$offset`, without core's own update checks.
- *
- * @param int $offset The log's size before.
- * @return string
- */
-function new_log_lines( int $offset ): string {
-	$log = getenv( 'WP' ) . '/wp-content/debug.log';
-
-	clearstatcache( true, $log );
-
-	if ( ! is_file( $log ) || filesize( $log ) <= $offset ) {
-		return '';
-	}
-
-	$lines = explode( "\n", (string) file_get_contents( $log, false, null, $offset ) );
-	$lines = array_filter( $lines, static fn( string $line ): bool => '' !== trim( $line ) && 1 !== preg_match( '~wp_version_check|wp_update_plugins|wp_update_themes~', $line ) );
-
-	return implode( "\n", $lines );
-}
-
-/**
- * The size of debug.log now, so a pass can read only what it added.
- *
- * @return int
- */
-function log_size(): int {
-	$log = getenv( 'WP' ) . '/wp-content/debug.log';
-
-	clearstatcache( true, $log );
-
-	return is_file( $log ) ? (int) filesize( $log ) : 0;
-}
-
 echo "\nWith every plugin active\n";
 
 $results = fetch_all( $pages );
@@ -306,7 +276,14 @@ foreach ( [
 }
 
 check( 'the header menu is labelled Main', str_contains( $single, 'aria-label="Main"' ) );
-check( 'the footer menu is labelled Footer', str_contains( $single, 'aria-label="Footer"' ) );
+// The Mobile menu part renders inside the header menu's <nav>, so a <nav> of
+// its own would be a landmark inside a landmark.
+check( 'the mobile menu adds no <nav> inside the header menu', \Dom\HTMLDocument::createFromString( $single, LIBXML_NOERROR )->querySelector( 'header nav nav' ), null );
+// The footer has no Navigation block on purpose. One with no menu chosen
+// shows the most recently published menu, whichever that is.
+$footer = \Dom\HTMLDocument::createFromString( $single, LIBXML_NOERROR )->querySelector( 'footer' );
+check( 'the footer holds no menu', null !== $footer && null === $footer->querySelector( '.wp-block-navigation' ) );
+check( "the footer's copyright shows this year, through the binding", null !== $footer && str_contains( (string) $footer->textContent, trim( wp_cli_php( 'echo wp_date( "Y" );' ) ) ) );
 check( 'the sidebar renders in an <aside> element', str_contains( $results['With sidebar page']['body'], '<aside class="wp-block-template-part"' ) );
 
 check( 'the Canvas page has no <header> element', str_contains( $results['Canvas page']['body'], '<header' ), false );
@@ -360,6 +337,14 @@ $sidebar_post = $results['With sidebar post']['body'];
 check( 'the With sidebar post links to the previous and next posts', null !== in_main( $sidebar_post, 'nav[aria-label="Posts"] .wp-block-post-navigation-link' ) );
 check( 'and has the comments block', null !== in_main( $sidebar_post, '.wp-block-comments' ) );
 check( 'the With sidebar page has no post links', in_main( $results['With sidebar page']['body'], 'nav[aria-label="Posts"]' ), null );
+
+// The same for Wide and Narrow, which are offered on posts too.
+foreach ( [ 'Wide', 'Narrow' ] as $layout ) {
+	$post = $results[ "$layout post" ]['body'];
+	check( "the $layout post links to the previous and next posts", null !== in_main( $post, 'nav[aria-label="Posts"] .wp-block-post-navigation-link' ) );
+	check( 'and has the comments block', null !== in_main( $post, '.wp-block-comments' ) );
+	check( "the $layout page has no post links", in_main( $results[ "$layout page" ]['body'], 'nav[aria-label="Posts"]' ), null );
+}
 
 // The pattern is the template, offered in the Design panel. PHP drops the one
 // newline after the closing tag, so what follows it is exactly what the

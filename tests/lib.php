@@ -191,3 +191,37 @@ function wp_cli_php( string $code ): string {
 
 	return $stdout;
 }
+
+/**
+ * What debug.log gained since `$offset`, without core's own update checks.
+ *
+ * @param int $offset The log's size before.
+ * @return string
+ */
+function new_log_lines( int $offset ): string {
+	$log = getenv( 'WP' ) . '/wp-content/debug.log';
+
+	clearstatcache( true, $log );
+
+	if ( ! is_file( $log ) || filesize( $log ) <= $offset ) {
+		return '';
+	}
+
+	$lines = explode( "\n", (string) file_get_contents( $log, false, null, $offset ) );
+	$lines = array_filter( $lines, static fn( string $line ): bool => '' !== trim( $line ) && 1 !== preg_match( '~wp_version_check|wp_update_plugins|wp_update_themes~', $line ) );
+
+	return implode( "\n", $lines );
+}
+
+/**
+ * The size of debug.log now, so a pass can read only what it added.
+ *
+ * @return int
+ */
+function log_size(): int {
+	$log = getenv( 'WP' ) . '/wp-content/debug.log';
+
+	clearstatcache( true, $log );
+
+	return is_file( $log ) ? (int) filesize( $log ) : 0;
+}

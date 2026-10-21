@@ -9,7 +9,8 @@
  * - Every template and part opens with no invalid blocks, and with exactly
  *   the Slot blocks its files hold. The count is read from the files, so a
  *   new slot needs no edit here.
- * - The two layout patterns are offered for the templates they name.
+ * - The two layout patterns are offered for the templates they name, and
+ *   each parses to valid blocks only.
  * - Alt Heading is in the Heading block's style list.
  * - At 1440px wide, content is 740px on a page, 1200px on Wide, and 600px on
  *   Narrow, a full group spans the window, and the With sidebar column holds
@@ -314,6 +315,35 @@ try {
 
 	for ( const template of [ 'index', 'home', 'archive', 'search' ] ) {
 		check( `Archive: List is offered for ${ template }`, offered( 'mai-theme/layout-archive-list', template ) );
+	}
+
+	// A pattern never opens as a template, so the loop above never sees its
+	// markup. This parses it as the Design panel does when it applies one, and
+	// walks every block, nested ones included.
+	const layouts = [ [ 'mai-theme/layout-archive-list', 'Archive: List' ], [ 'mai-theme/layout-post-with-sidebar', 'Post: With sidebar' ] ];
+	const parsed = await editor.evaluate( async ( names ) => {
+		const all = await wp.data.resolveSelect( 'core' ).getBlockPatterns();
+		const count = ( blocks ) => blocks.reduce( ( n, b ) => n + 1 + count( b.innerBlocks ), 0 );
+		const invalid = ( blocks, path ) => blocks.flatMap( ( b ) => {
+			const here = [ ...path, b.name ];
+
+			return [ ...( false === b.isValid ? [ here.join( ' > ' ) ] : [] ), ...invalid( b.innerBlocks, here ) ];
+		} );
+
+		return Object.fromEntries( names.map( ( name ) => {
+			const blocks = wp.blocks.parse( all.find( ( p ) => p.name === name )?.content ?? '' );
+
+			return [ name, { blocks: count( blocks ), invalid: invalid( blocks, [] ) } ];
+		} ) );
+	}, layouts.map( ( [ name ] ) => name ) );
+
+	for ( const [ name, label ] of layouts ) {
+		// Openers in the file itself. A template part's blocks are not in the
+		// pattern's markup, so the parts it names are not counted.
+		const want = ( readFileSync( `${ THEME }/patterns/${ name.split( '/' )[ 1 ] }.php`, 'utf8' ).match( /<!-- wp:[a-z]/g ) ?? [] ).length;
+
+		check( `${ label } parses to its ${ want } blocks`, parsed[ name ].blocks, want );
+		check( `${ label } holds no invalid blocks`, parsed[ name ].invalid, [] );
 	}
 
 	check( 'Alt Heading is in the Heading block\'s styles', await editor.evaluate( () => wp.data.select( 'core/blocks' ).getBlockStyles( 'core/heading' ).map( ( s ) => s.name ).includes( 'altheading' ) ) );

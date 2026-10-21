@@ -14,6 +14,22 @@ namespace Mai\Theme\Tests;
 require __DIR__ . '/lib.php';
 
 /**
+ * The `Version:` in a theme's `style.css` header, or null when it has none.
+ *
+ * Read from the file, not from WordPress, so the check compares what WordPress
+ * printed with what the header says. A client copy sets its own version, and
+ * this follows it.
+ *
+ * @param string $theme The theme's folder name.
+ * @return string|null
+ */
+function header_version( string $theme ): ?string {
+	$css = (string) file_get_contents( getenv( 'WP' ) . "/wp-content/themes/$theme/style.css" );
+
+	return 1 === preg_match( '~^[ \t/*]*Version:\s*(\S+)~m', $css, $matches ) ? $matches[1] : null;
+}
+
+/**
  * The contents of one `<style id="…">` block, or null when the page has none.
  *
  * @param string $html The page.
@@ -42,8 +58,31 @@ foreach ( [ 'mai-theme', 'acme' ] as $theme ) {
 
 	$folder = BASE_URL . '/wp-content/themes/' . $theme . '/';
 
+	$version = header_version( $theme );
+	check( "this folder's style.css header has a version", null !== $version );
+
 	preg_match( '~<link[^>]*\bid=([\'"])mai-theme-css\1[^>]*\bhref=([\'"])([^\'"]+)\2~', $html, $link );
-	check( 'mai-theme-css loads style.css from this folder, versioned 3.0.0 plus its file time', 1 === preg_match( '~^' . preg_quote( $folder, '~' ) . 'style\.css\?ver=3\.0\.0\.\d+$~', $link[3] ?? '' ) );
+	check( "mai-theme-css loads style.css from this folder, versioned $version plus its file time", 1 === preg_match( '~^' . preg_quote( $folder . 'style.css?ver=' . $version . '.', '~' ) . '\d+$~', $link[3] ?? '' ) );
+
+	// Core inlines a block stylesheet this small, so the page shows the handle
+	// but no URL. The URL and the file core read are checked inside the site,
+	// by handing core's render_block filter a Navigation block, which registers
+	// the stylesheet as a real page does, without rendering a menu.
+	check( 'the page prints the Navigation block CSS, as mai-theme-core-navigation', 1 === preg_match( '~<(?:link|style)[^>]*\bid=([\'"])mai-theme-core-navigation(?:-inline)?-css\1~', $html ) );
+
+	$navigation = json_decode(
+		wp_cli_php(
+			'$block = [ "blockName" => "core/navigation", "attrs" => [], "innerBlocks" => [], "innerHTML" => "", "innerContent" => [] ];
+			apply_filters( "render_block", "", $block, new WP_Block( $block ) );
+			$style = wp_styles()->query( "mai-theme-core-navigation" );
+			echo wp_json_encode( [ "src" => $style ? $style->src : null, "path" => $style ? wp_styles()->get_data( "mai-theme-core-navigation", "path" ) : null ] );'
+		),
+		true,
+		512,
+		JSON_THROW_ON_ERROR
+	);
+	check( 'its URL is under this folder', str_starts_with( (string) $navigation['src'], $folder . 'assets/css/blocks/core/navigation.css' ) );
+	check( 'and core reads it from this folder', $navigation['path'], getenv( 'WP' ) . "/wp-content/themes/$theme/assets/css/blocks/core/navigation.css" );
 
 	$global = style_block( $html, 'global-styles-inline-css' ) ?? '';
 	check( 'global styles print', '' !== $global );
