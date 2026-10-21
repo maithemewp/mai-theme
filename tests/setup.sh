@@ -52,8 +52,9 @@ start_server() {
 		exit 1
 	fi
 
-	# Four workers, because WordPress's cron makes a request back to the site
-	# while it is serving a page, and one worker would wait on itself.
+	# Four workers, so any request the site makes back to itself while serving
+	# a page never waits on itself. Cron is off in wp-config, but loopbacks are
+	# not only cron.
 	PHP_CLI_SERVER_WORKERS=4 php -S "$HOST" -t "$WP" > "$TEST_DIR/server.log" 2>&1 &
 	SERVER_PID=$!
 	trap stop_server EXIT
@@ -82,6 +83,9 @@ run_tests() {
 	: > "$WP/wp-content/debug.log"
 
 	start_server
+
+	# Every script starts from the starter, whatever the last run left active.
+	( cd "$WP" && php -r 'require "wp-load.php"; switch_theme( "mai-theme" );' )
 
 	shopt -s nullglob
 
@@ -205,6 +209,11 @@ define( 'WP_DEBUG_DISPLAY', false );
 define( 'SCRIPT_DEBUG', true );
 define( 'WP_HOME', 'http://$HOST' );
 define( 'WP_SITEURL', 'http://$HOST' );
+
+// Background updates and cron write to debug.log on their own schedule, and the
+// clean log is part of every run's verdict.
+define( 'AUTOMATIC_UPDATER_DISABLED', true );
+define( 'DISABLE_WP_CRON', true );
 
 if ( ! defined( 'ABSPATH' ) ) {
 	define( 'ABSPATH', __DIR__ . '/' );

@@ -1,0 +1,38 @@
+<?php
+/**
+ * Title: Post: With sidebar
+ * Slug: mai-theme/layout-post-with-sidebar
+ * Template Types: single
+ * Post Types: wp_template
+ * Inserter: false
+ *
+ * The With sidebar template, offered as a layout for Single Posts in the Site
+ * Editor's Design panel. Keep it identical to templates/with-sidebar.html.
+ */
+
+declare( strict_types=1 );
+
+?>
+<!-- wp:mai/slot {"location":"mai/before-header","lock":{"remove":true}} /-->
+
+<!-- wp:template-part {"slug":"header","area":"header"} /-->
+
+<!-- wp:mai/slot {"location":"mai/after-header","lock":{"remove":true}} /-->
+
+<!-- wp:group {"tagName":"main","className":"mai-theme-wide","style":{"spacing":{"padding":{"top":"var:preset|spacing|50","bottom":"var:preset|spacing|80"}}},"layout":{"type":"constrained"}} -->
+<main class="wp-block-group mai-theme-wide" style="padding-top:var(--wp--preset--spacing--50);padding-bottom:var(--wp--preset--spacing--80)"><!-- wp:mai/columns {"sizesLg":["fill","300px"],"sizesMd":["1/1"],"sizesSm":["1/1"],"style":{"spacing":{"blockGap":{"left":"var:preset|spacing|60","top":"var:preset|spacing|60"}}}} -->
+<!-- wp:mai/column -->
+<!-- wp:template-part {"slug":"entry"} /-->
+<!-- /wp:mai/column -->
+
+<!-- wp:mai/column -->
+<!-- wp:template-part {"slug":"sidebar","area":"sidebar"} /-->
+<!-- /wp:mai/column -->
+<!-- /wp:mai/columns --></main>
+<!-- /wp:group -->
+
+<!-- wp:mai/slot {"location":"mai/before-footer","lock":{"remove":true}} /-->
+
+<!-- wp:template-part {"slug":"footer","area":"footer"} /-->
+
+<!-- wp:mai/slot {"location":"mai/after-footer","lock":{"remove":true}} /-->

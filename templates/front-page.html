@@ -1,0 +1,15 @@
+<!-- wp:mai/slot {"location":"mai/before-header","lock":{"remove":true}} /-->
+
+<!-- wp:template-part {"slug":"header","area":"header"} /-->
+
+<!-- wp:mai/slot {"location":"mai/after-header","lock":{"remove":true}} /-->
+
+<!-- wp:group {"tagName":"main","style":{"spacing":{"padding":{"top":"0","bottom":"0"}}},"layout":{"type":"constrained"}} -->
+<main class="wp-block-group" style="padding-top:0;padding-bottom:0"><!-- wp:post-content {"align":"full","layout":{"type":"constrained"}} /--></main>
+<!-- /wp:group -->
+
+<!-- wp:mai/slot {"location":"mai/before-footer","lock":{"remove":true}} /-->
+
+<!-- wp:template-part {"slug":"footer","area":"footer"} /-->
+
+<!-- wp:mai/slot {"location":"mai/after-footer","lock":{"remove":true}} /-->

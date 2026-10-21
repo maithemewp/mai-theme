@@ -11,7 +11,8 @@
  *
  * Run a script through `tests/setup.sh --run`, which sets `WP` and starts the
  * server. Each script ends with `done()`, which prints its totals and sets its
- * exit code.
+ * exit code. A script that stops before `done()`, or forgets it, still exits 1,
+ * so it can never pass by printing nothing.
  */
 
 declare( strict_types=1 );
@@ -20,7 +21,45 @@ namespace Mai\Theme\Tests;
 
 const BASE_URL = 'http://localhost:8430';
 
-$GLOBALS['mai_theme_tests'] = [ 'pass' => 0, 'fail' => 0 ];
+$GLOBALS['mai_theme_tests'] = [ 'pass' => 0, 'fail' => 0, 'done' => false ];
+
+register_shutdown_function( __NAMESPACE__ . '\\queue_verdict' );
+
+/**
+ * Put the verdict at the very end of the shutdown queue.
+ *
+ * An `exit()` inside a shutdown function skips every one after it, and scripts
+ * register their own to put the site back. Registering from inside a shutdown
+ * function appends to the queue as it runs, so the verdict goes last and never
+ * skips a script's clean-up.
+ *
+ * @return void
+ */
+function queue_verdict(): void {
+	register_shutdown_function( __NAMESPACE__ . '\\verdict' );
+}
+
+/**
+ * Fail a script that never reached `done()`, or that failed a check after it.
+ *
+ * `done()` sets the exit code for a script that finishes. This catches the
+ * rest: a script that forgot `done()`, one that a setup step stopped early, and
+ * a clean-up check that failed after the totals printed.
+ *
+ * @return void
+ */
+function verdict(): void {
+	[ 'fail' => $fail, 'done' => $done ] = $GLOBALS['mai_theme_tests'];
+
+	if ( ! $done ) {
+		fwrite( STDERR, "\nThis script stopped before done(), so its checks do not count. Failing it.\n\n" );
+		exit( 1 );
+	}
+
+	if ( $fail > 0 ) {
+		exit( 1 );
+	}
+}
 
 /**
  * Print one result, and count it.
@@ -49,6 +88,8 @@ function check( string $what, mixed $actual, mixed $expected = true ): void {
  */
 function done(): never {
 	[ 'pass' => $pass, 'fail' => $fail ] = $GLOBALS['mai_theme_tests'];
+
+	$GLOBALS['mai_theme_tests']['done'] = true;
 
 	printf( "\n%d passed, %d failed\n\n", $pass, $fail );
 	exit( $fail > 0 ? 1 : 0 );
