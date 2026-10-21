@@ -2,7 +2,9 @@
 
 declare( strict_types=1 );
 
-namespace Mai\Theme;
+// Not Mai\Theme, which belongs to the mai-theme-core package. Sharing it means
+// a function here, or one the package adds later, fatals on the same name.
+namespace Mai\Theme\Starter;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -15,7 +17,7 @@ if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-foreach ( glob( __DIR__ . '/inc/*.php' ) as $file ) {
+foreach ( glob( __DIR__ . '/inc/*.php' ) ?: [] as $file ) {
 	require_once $file;
 }
 
