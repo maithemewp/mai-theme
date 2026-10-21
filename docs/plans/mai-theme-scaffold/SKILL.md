@@ -5,7 +5,7 @@ description: House conventions for building a BizBudding/Mai WordPress block the
 
 # Mai theme scaffold
 
-**Status: draft.** This file lives at `docs/plans/mai-theme-scaffold/SKILL.md` in the `mai-theme` repo until Mike reviews it. It moves to `~/.agents/skills/mai-theme-scaffold/` after that review. Until then it is not an installed skill.
+**Status: draft.** This file lives at `docs/plans/mai-theme-scaffold/SKILL.md` in the `mai-theme` repo until Mike reviews it. It moves to `~/.agents/skills/mai-theme-scaffold/` after that review and after the first push. Until then it is not an installed skill. The paths below assume v3 has replaced v1 at `~/Themes/mai-theme`. Before the first push that folder is the old Genesis theme, and v3 is at `~/Themes/mai-theme-v3`.
 
 House conventions for Mai block themes. `mai-theme` (`~/Themes/mai-theme`, repo `maithemewp/mai-theme`) is the reference for **folder layout, token names, and code shape**. When this file and that theme disagree, read the theme and tell Mike. Do not pick a side quietly.
 

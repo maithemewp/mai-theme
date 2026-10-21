@@ -6,7 +6,7 @@ How Mike builds block themes (repo shape, token names, CSS, block CSS, block sty
 
 **Any change to a house convention in this repo updates the skill in the same session.** The skill names this theme as the reference. When the two disagree, read the theme and tell Mike.
 
-Reasoning lives in `docs/specs/2026-10-20-mai-theme-v3.md`. Decisions made while building are in `docs/plans/2026-10-20-mai-theme-v3-build.md` and its ledger in `.superpowers/sdd/`.
+Reasoning lives in `docs/specs/2026-10-20-mai-theme-v3.md`. Calls made while building are in `docs/plans/2026-10-20-mai-theme-v3-build.md`, "Decided while building".
 
 ## What this is
 
@@ -26,7 +26,7 @@ Invariants only. Each rule links to where its argument lives. If you are about t
 - **A layout pattern body equals its template.** `patterns/layout-post-with-sidebar.php` matches `templates/with-sidebar.html`. `tests/slots.php` fails when they differ.
 - **Layout patterns list every template slug by name** in `Template Types:`. The Design panel matches exact slugs. → spec, "Templates"
 - **There is no "Standard" template.** The default template is the standard width. → spec, "Templates"
-- **Wide and Narrow change width through a class on `main`,** which resets `--wp--style--global--content-size` in `style.css`. They never set `contentSize` on `main`. → `.superpowers/sdd/2026-10-20-mai-theme-v3-build/progress.md`, first ruling
+- **Wide and Narrow change width through a class on `main`,** which resets `--wp--style--global--content-size` in `style.css`. They never set `contentSize` on `main`. → `docs/plans/2026-10-20-mai-theme-v3-build.md`, "Decided while building"
 
 ## Tokens
 

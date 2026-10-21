@@ -11,14 +11,15 @@ Nothing is pushed, tagged, or released.
 
 ## Next
 
-1. Walk the skill draft with Mike, then move it to `~/.agents/skills/mai-theme-scaffold/` with his yes.
-2. Settle the three overnight decisions listed below.
+1. Settle the three overnight decisions listed below.
+2. Walk the skill draft with Mike.
 3. Get Mike's yes for the first push. See below.
+4. After the push, move the skill to `~/.agents/skills/mai-theme-scaffold/` with his yes. Not before: it names `~/Themes/mai-theme`, which is v1 until then.
 
 ## Blocked / waiting on
 
 **Mike, in this order:**
-- **Walking the skill draft.** Until then the theme points at a skill that is not installed.
+- **Walking the skill draft.** It installs only after the first push. Until then the theme points at a skill that is not installed.
 - **The first push.** It makes `v3` become `main` and moves v1 to a `v1` branch. Nothing is pushed until he says so.
 - **Mai Content Areas going public,** with `main` as its stable branch and an updater, as Mai Columns has. The installer cannot install a private plugin, and there is no way to update it today.
 - **Switching the path repositories to GitHub and committing `vendor/`.** That covers `mai-theme-core` here and the engine packages in Mai Content Areas. Then regenerate `composer.lock`.
@@ -39,6 +40,7 @@ The first must end `All checks passed.` with a clean `debug.log`. It runs 260 ch
 
 ## Gotchas
 
+- **Paths named `~/Themes/mai-theme` assume v3 has replaced v1 there.** That is the skill, the README's `rsync` command, and the spec's links. Today `~/Themes/mai-theme` is the v1 Genesis checkout, and this theme is at `~/Themes/mai-theme-v3`. The swap happens at the first push.
 - **The theme is a git worktree** at `~/Themes/mai-theme-v3`, on the orphan branch `v3`. `~/Themes/mai-theme` is still the v1 checkout on `develop`. Do not touch it.
 - **The test site uses port 8430.** Stop anything else there first.
 - **`.wp-test/` is disposable.** Delete it and run `./tests/setup.sh` to start over.

@@ -2,7 +2,7 @@
 
 A block theme starter for sites built on Mai Content Areas. Every Mai Slots location already has a Slot block in the right template, so content areas show up with no template editing.
 
-**Status: 3.0.0, unreleased.** Mai Content Areas is still private and has no updater, so the theme cannot install it on a real site yet. See [TODO.md](TODO.md).
+**Status: 3.0.0, unreleased.** Paths like `~/Themes/mai-theme` assume this branch has replaced the old v1 theme there, which happens at the first push. Mai Content Areas is still private and has no updater, so the theme cannot install it on a real site yet. See [TODO.md](TODO.md).
 
 **This is a starter, not a theme you update in place.** Each client site is a renamed copy of this folder. Fixes to the shared code reach old copies through a Composer package, covered in "Bring starter fixes into a client site".
 
@@ -46,7 +46,7 @@ Do this once per client.
 1. Copy the starter to a new folder named for the client.
 
    ```sh
-   rsync -a --exclude='.git' --exclude='.wp-test' --exclude='.superpowers' --exclude='vendor' ~/Themes/mai-theme/ ~/Themes/acme/
+   rsync -a --exclude='.git' --exclude='.wp-test' --exclude='vendor' ~/Themes/mai-theme/ ~/Themes/acme/
    ```
 
 2. Open `style.css` in the new folder.
