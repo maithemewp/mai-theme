@@ -1,0 +1,6 @@
+/* Card images take the site's radius. The gap between cards is in theme.json, not here: block CSS
+   prints before core's gap rules, so a gap here would either lose to the global block gap or beat a
+   gap set on the block. A radius set on the Featured Image block is an inline style, so it still wins. */
+.wp-block-post-template .wp-block-post-featured-image :where(img) {
+	border-radius: var(--wp--preset--border-radius--default);
+}

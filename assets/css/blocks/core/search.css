@@ -1,0 +1,9 @@
+/* The field's border takes the palette's border colour and the site's radius. With the button inside,
+   the border is on the wrapper around both, so the wrapper gets them instead. Core's own rules here are
+   all :where(), so a class is enough. The button is left alone: it carries the button element class,
+   so Global Styles' button settings already reach it. */
+.wp-block-search__input,
+.wp-block-search__button-inside .wp-block-search__inside-wrapper {
+	border-color: var(--wp--preset--color--base-3);
+	border-radius: var(--wp--preset--border-radius--default);
+}

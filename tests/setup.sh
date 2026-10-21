@@ -92,6 +92,9 @@ run_tests() {
 	for test in "$THEME_DIR"/tests/*.php; do
 		# The shared helpers, not a check.
 		[ "$( basename "$test" )" = "lib.php" ] && continue
+		# The set-up helper for the browser check of the same name, which
+		# calls it itself, as in Mai Content Areas' editor-*.php pairs.
+		[ -f "${test%.php}.mjs" ] && continue
 		WP="$WP" php "$test" || failed=1
 	done
 

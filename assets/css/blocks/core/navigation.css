@@ -1,0 +1,18 @@
+/* The open menu. The Mobile menu part paints its own background, but the container behind it is
+   see-through, so this covers anything the part does not, and core's own overlay on a menu with no
+   part. Core paints that one white on black with a five-class selector, so this one repeats a class
+   to outrank it. A colour picked on the block still wins: core prints those as !important classes or
+   inline styles. */
+.wp-block-navigation:not(.has-background) .wp-block-navigation__responsive-container.is-menu-open.is-menu-open.is-menu-open {
+	background-color: var(--wp--preset--color--base);
+}
+
+.wp-block-navigation:not(.has-text-color) .wp-block-navigation__responsive-container.is-menu-open.is-menu-open.is-menu-open {
+	color: var(--wp--preset--color--contrast);
+}
+
+/* Core's own overlay pads itself from the root padding with a 1rem floor. This matches the Mobile
+   menu part's padding instead, so both overlays sit the same. */
+.wp-block-navigation .wp-block-navigation__responsive-container.is-menu-open:not(.disable-default-overlay) {
+	padding: var(--wp--preset--spacing--30) var(--wp--preset--spacing--40) var(--wp--preset--spacing--60);
+}

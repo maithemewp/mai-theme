@@ -296,6 +296,13 @@
 				"right": "var:preset|spacing|40"
 			}
 		},
+		"blocks": {
+			"core/post-template": {
+				"spacing": {
+					"blockGap": "var:preset|spacing|40"
+				}
+			}
+		},
 		"elements": {
 			"link": {
 				"color": {

@@ -336,6 +336,42 @@ check( 'the page has no meta group', entry_meta( $results['page']['body'] ), nul
 $main = \Dom\HTMLDocument::createFromString( $results['page']['body'], LIBXML_NOERROR )->querySelector( 'main' );
 check( "and no sign of the page's year in main", null !== $main && ! str_contains( (string) $main->textContent, '2019' ) );
 
+/**
+ * The first element matching a selector inside `main`, or null.
+ *
+ * @param string $html     The page.
+ * @param string $selector A CSS selector, scoped to `main`.
+ * @return \Dom\Element|null
+ */
+function in_main( string $html, string $selector ): ?\Dom\Element {
+	return \Dom\HTMLDocument::createFromString( $html, LIBXML_NOERROR )->querySelector( "main $selector" );
+}
+
+$main_classes = static fn( string $label ): array => explode( ' ', (string) \Dom\HTMLDocument::createFromString( $results[ $label ]['body'], LIBXML_NOERROR )->querySelector( 'main' )?->getAttribute( 'class' ) );
+
+check( 'the Wide page puts mai-theme-wide on main', in_array( 'mai-theme-wide', $main_classes( 'Wide page' ), true ) );
+check( 'the Narrow page puts mai-theme-narrow on main', in_array( 'mai-theme-narrow', $main_classes( 'Narrow page' ), true ) );
+check( 'the latest-posts home page is headed Blog', trim( (string) in_main( $results['blog home, showing the latest posts']['body'], 'h1' )?->textContent ), 'Blog' );
+check( 'the search page has a search form', null !== in_main( $results['search']['body'], 'form.wp-block-search' ) );
+
+// Switching a post to the sidebar layout keeps what Single Posts shows after
+// the entry. The previous and next links are for posts only.
+$sidebar_post = $results['With sidebar post']['body'];
+check( 'the With sidebar post links to the previous and next posts', null !== in_main( $sidebar_post, 'nav[aria-label="Posts"] .wp-block-post-navigation-link' ) );
+check( 'and has the comments block', null !== in_main( $sidebar_post, '.wp-block-comments' ) );
+check( 'the With sidebar page has no post links', in_main( $results['With sidebar page']['body'], 'nav[aria-label="Posts"]' ), null );
+
+// The pattern is the template, offered in the Design panel. PHP drops the one
+// newline after the closing tag, so what follows it is exactly what the
+// pattern prints. (The tag itself cannot appear in this comment: it would end
+// PHP mode here.)
+$pattern = (string) file_get_contents( dirname( __DIR__ ) . '/patterns/layout-post-with-sidebar.php' );
+check(
+	'the Post: With sidebar pattern prints templates/with-sidebar.html exactly',
+	substr( $pattern, (int) strpos( $pattern, "?>\n" ) + 3 ),
+	(string) file_get_contents( dirname( __DIR__ ) . '/templates/with-sidebar.html' )
+);
+
 foreach ( [ CONTENT_AREAS => 'Mai Content Areas', COLUMNS => 'Mai Columns' ] as $plugin => $name ) {
 	echo "\nWith $name deactivated\n";
 
