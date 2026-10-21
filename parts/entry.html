@@ -1,0 +1,21 @@
+<!-- wp:mai/slot {"location":"mai/before-entry","lock":{"remove":true}} /-->
+
+<!-- wp:post-title {"level":1} /-->
+
+<!-- wp:group {"metadata":{"maiSlotsRules":{"version":1,"sets":[[{"type":"post-type","config":{"operator":"is","values":["post"],"labels":{"post":"Posts"}}}]]},"name":"Entry meta. Shows on posts only"},"textColor":"contrast-2","fontSize":"small","style":{"spacing":{"blockGap":"var:preset|spacing|20"}},"layout":{"type":"flex","flexWrap":"wrap"}} -->
+<div class="wp-block-group has-contrast-2-color has-text-color has-small-font-size"><!-- wp:post-date /-->
+
+<!-- wp:post-author-name /-->
+
+<!-- wp:post-terms {"term":"category"} /--></div>
+<!-- /wp:group -->
+
+<!-- wp:post-featured-image /-->
+
+<!-- wp:mai/slot {"location":"mai/before-entry-content","lock":{"remove":true}} /-->
+
+<!-- wp:post-content {"layout":{"type":"constrained"}} /-->
+
+<!-- wp:mai/slot {"location":"mai/after-entry-content","lock":{"remove":true}} /-->
+
+<!-- wp:mai/slot {"location":"mai/after-entry","lock":{"remove":true}} /-->
