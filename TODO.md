@@ -32,7 +32,7 @@ See the spec, "Later: not in the starter".
 
 **In this theme:**
 - [ ] **Gate the missing-vendor notice.** It shows to every admin. Show it only to someone who can switch themes.
-- [ ] **Match the missing-vendor notice's text domain** to the client's, or leave it as `mai-theme` on purpose and say so.
+- [ ] **Match the text domain of the missing-vendor notice and the package's `src/admin.php`** to the client's, or leave it as `mai-theme` on purpose and say so.
 - [ ] **Stop hard-coding `queryId` 1** in `parts/posts-grid.html` and `patterns/posts-grid.php`. "Posts: Archive" and "Posts: List" already carry none.
 - [ ] **Scope `search.css` to the field wrapper.** It rounds the input inside a button-inside wrapper as well as the wrapper.
 - [ ] **Keep `docs/specs` and `docs/plans` in a fresh client copy.** The "Start a client site" procedure empties them, and they have no `.gitkeep`.
@@ -55,5 +55,4 @@ See the spec, "Later: not in the starter".
 - [ ] **Keep core's other button classes on the other login screens.** The submit button rewrite drops them.
 - [ ] **Soften the `esc_url_raw()` comment** in `login_logo_css()`. It claims more than the function does.
 - [ ] **Decide whether empty paragraphs with attributes stay.** `strip_empty_paragraphs()` removes them, which also removes coloured bars and script-filled `<p data-wp-text>`.
-- [ ] **Fix the embed docblock.** It says block embeds are untouched, but the inline `height: auto` can leave a small gap when the provider's shape differs from the wrapper's.
 - [ ] **Tag a first release** only when the plumbing settles, with Mike's yes.

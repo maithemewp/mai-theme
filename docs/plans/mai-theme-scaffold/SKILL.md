@@ -119,7 +119,7 @@ The token names are a contract: future patterns refer to them. Add freely. Renam
 - **Block bindings and blocks:** the `mai/` namespace, as in `mai/current-year`.
 - **Pattern slugs:** `mai/` plus a hyphenated name, as in `mai/posts-grid`.
 - **Block style slugs:** hyphenated. `altheading` is the one exception.
-- **Template and part slugs:** hyphenated, as in `with-sidebar-post` and `mobile-menu`. Never starting with `page-` or `single-`, which are WordPress's own template names.
+- **Template and part slugs:** hyphenated, as in `with-sidebar-post` and `mobile-menu`. Template slugs never start with `page-` or `single-`, which are WordPress's own template names. Part slugs cannot clash with them, which is why `page-header` is fine.
 
 ## Docs and tests
 

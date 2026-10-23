@@ -112,7 +112,7 @@ The menu choice saves to the database, not to the theme's files. Leave it there:
 
 ## Give every single post the sidebar
 
-One post can get the sidebar from the post's own **Template** setting: choose "Post with sidebar". To give it to every post, use one of the two ways below. The result is the same layout: the entry, post navigation, and comments next to the sidebar part.
+One post can get the sidebar from the post's own **Template** setting: choose "Post with sidebar". To give it to every post, use one of the two ways below. The result is the same layout: the entry, post navigation, and comments next to the sidebar part. `single.html` also serves every custom post type, so both ways give those the sidebar too.
 
 ### In code
 

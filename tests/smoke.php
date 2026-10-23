@@ -382,6 +382,8 @@ foreach ( [ 'mai-theme', 'acme' ] as $theme ) {
 				"landscape" => apply_filters( "embed_oembed_html", "<iframe width=\"500\" height=\"281\" src=\"https://www.youtube.com/embed/a\"></iframe>", "", [], 0 ),
 				"portrait"  => apply_filters( "embed_oembed_html", "<iframe width=\"422\" height=\"750\" src=\"https://www.youtube.com/embed/b\"></iframe>", "", [], 0 ),
 				"no-size"   => apply_filters( "embed_oembed_html", "<iframe src=\"https://example.com/c\"></iframe>", "", [], 0 ),
+				"percent"   => apply_filters( "embed_oembed_html", "<iframe width=\"100%\" height=\"120\" src=\"https://www.mixcloud.com/widget/iframe/?feed=d\"></iframe>", "", [], 0 ),
+				"styled"    => apply_filters( "embed_oembed_html", "<iframe style=\"border-radius: 12px\" width=\"500\" height=\"152\" src=\"https://open.spotify.com/embed/e\"></iframe>", "", [], 0 ),
 			] );'
 		),
 		true,
@@ -391,6 +393,8 @@ foreach ( [ 'mai-theme', 'acme' ] as $theme ) {
 	check( 'a landscape video embed takes its own ratio and fills the column', str_contains( $embeds['landscape'], 'style="aspect-ratio: 500 / 281; width: 100%; height: auto; box-sizing: border-box;"' ) );
 	check( 'a portrait one keeps its own width', str_contains( $embeds['portrait'], 'style="aspect-ratio: 422 / 750; max-width: 100%; height: auto; box-sizing: border-box;"' ) );
 	check( 'an embed with no size is left alone', $embeds['no-size'], '<iframe src="https://example.com/c"></iframe>' );
+	check( 'an embed sized in percent is left alone', $embeds['percent'], '<iframe width="100%" height="120" src="https://www.mixcloud.com/widget/iframe/?feed=d"></iframe>' );
+	check( 'an embed keeps its own style, joined with a semicolon', str_contains( $embeds['styled'], 'style="border-radius: 12px; aspect-ratio: 500 / 152;' ) );
 
 	$forms = json_decode( wp_cli_php( 'echo wp_json_encode( apply_filters( "gform_default_styles", false ) );' ), true, 512, JSON_THROW_ON_ERROR );
 	check( 'Gravity Forms buttons take the primary colour', $forms['buttonPrimaryBackgroundColor'] ?? null, '#2563eb' );
