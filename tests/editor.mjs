@@ -210,6 +210,28 @@ try {
 		check( 'and nothing in the column reaches outside it', column?.outside, [] );
 	}
 
+	// A Slot block prints its content bare, a template part has no layout of
+	// its own, and the reset zeroes every margin. So blocks a content area puts
+	// in After entry content are spaced only if entry-footer wraps its slots in
+	// a group with a layout. The gap is theme.json's blockGap, spacing 30.
+	for ( const [ label, where ] of [ [ 'page', site.pages.page ], [ 'Page with sidebar', site.pages.sidebar ], [ 'Post with sidebar', `p=${ site.pages.post }` ] ] ) {
+		await measure( where );
+		const spacing = await visitor.evaluate( () => {
+			const first = document.querySelector( 'main .mai-test-slot-first' );
+			const second = document.querySelector( 'main .mai-test-slot-second' );
+			const probe = document.body.appendChild( document.createElement( 'div' ) );
+			probe.style.marginTop = 'var(--wp--preset--spacing--30)';
+			const want = Math.round( parseFloat( getComputedStyle( probe ).marginTop ) );
+			probe.remove();
+
+			return {
+				gap: first && second ? Math.round( second.getBoundingClientRect().top - first.getBoundingClientRect().bottom ) : null,
+				want,
+			};
+		} );
+		check( `${ label }: two blocks in After entry content are ${ spacing.want }px apart, the block gap`, spacing.gap, spacing.want );
+	}
+
 	console.log( '\nBlock stylesheets load where their block is' );
 
 	const sidebarStyles = ( await measure( site.pages.sidebar ) ).styles;

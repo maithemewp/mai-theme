@@ -12,9 +12,13 @@
  * editor shows one with none to fall back on, and the clean step deletes it so
  * the next script sees the site as it was.
  *
+ * It also makes one content area, aimed at After entry content on every page,
+ * holding two paragraphs, so the spacing between blocks in that slot can be
+ * measured.
+ *
  * Everything this makes carries the `_mai_theme_tests` meta set to `editor`,
- * so it deletes its own posts and pages, and only its own, even after a run
- * that died.
+ * so it deletes its own posts, pages, and content area, and only its own, even
+ * after a run that died.
  */
 
 declare( strict_types=1 );
@@ -23,9 +27,22 @@ namespace Mai\Theme\Tests;
 
 require getenv( 'WP' ) . '/wp-load.php';
 
-foreach ( get_posts( [ 'post_type' => [ 'page', 'post' ], 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids', 'meta_key' => '_mai_theme_tests', 'meta_value' => 'editor' ] ) as $stale ) {
+foreach ( get_posts( [ 'post_type' => [ 'page', 'post', 'mai_content_area' ], 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids', 'meta_key' => '_mai_theme_tests', 'meta_value' => 'editor' ] ) as $stale ) {
 	wp_delete_post( $stale, true );
 }
+
+/**
+ * Rebuild the content area index from what is stored, through the plugin's own
+ * repository. The index is derived data, so this is always safe.
+ */
+$rebuild = static function (): void {
+	if ( class_exists( \Mai\ContentAreas\Index::class ) ) {
+		( new \Mai\ContentAreas\Index( \Mai\Slots\Slots::instance()->provider( 'content_areas' )->index ) )->rebuild();
+	}
+};
+
+// So no deleted content area lingers in it.
+$rebuild();
 
 $menus = get_posts( [ 'post_type' => 'wp_navigation', 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids' ] );
 
@@ -80,6 +97,43 @@ $make = static function ( string $title, string $template, string $type = 'page'
 
 	return $id;
 };
+
+// Two paragraphs through After entry content. No rule sets, so it matches
+// every page.
+$area = wp_insert_post(
+	[
+		'post_type'    => 'mai_content_area',
+		'post_status'  => 'publish',
+		'post_title'   => 'Editor after entry content',
+		'post_content' => '<!-- wp:paragraph {"className":"mai-test-slot-first"} -->
+<p class="mai-test-slot-first">The first block in After entry content.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"className":"mai-test-slot-second"} -->
+<p class="mai-test-slot-second">The second block in After entry content.</p>
+<!-- /wp:paragraph -->',
+		'meta_input'   => [ '_mai_theme_tests' => 'editor' ],
+	],
+	true
+);
+
+if ( is_wp_error( $area ) ) {
+	fwrite( STDERR, $area->get_error_message() );
+	exit( 1 );
+}
+
+update_post_meta(
+	$area,
+	'mai_placements',
+	[
+		'version'    => 1,
+		'placements' => [
+			[ 'location' => 'mai/after-entry-content', 'priority' => 10, 'position' => [], 'rules' => [ 'version' => 1, 'sets' => [] ] ],
+		],
+	]
+);
+
+$rebuild();
 
 echo wp_json_encode(
 	[
