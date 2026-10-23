@@ -6,15 +6,17 @@
  * Run through `tests/setup.sh --run`, which starts the server this reads.
  * Drives headless Chromium and never opens a window.
  *
+ * - The theme ships exactly the templates and parts it should, no more.
  * - Every template and part opens with no invalid blocks, and with exactly
  *   the Slot blocks its files hold. The count is read from the files, so a
  *   new slot needs no edit here.
- * - The two layout patterns are offered for the templates they name, and
- *   each parses to valid blocks only.
+ * - The Post: With sidebar layout pattern is offered for Single Posts, and
+ *   parses to valid blocks only.
  * - Alt Heading is in the Heading block's style list.
  * - At 1440px wide, content is 740px on a page, 1200px on Wide, and 600px on
- *   Narrow, a full group spans the window, and the With sidebar column holds
- *   its entry with no stray padding and nothing poking out.
+ *   Narrow, with Narrow's wide blocks at 740px. A full group spans the
+ *   window. The lists of posts are 1200px. In both sidebar templates, Post
+ *   Content sits in its column with no stray padding and nothing poking out.
  * - Each starter block stylesheet loads where its block is, and only there,
  *   and does what it is for: the search field's border, the open menu's
  *   colours, and the Post Template gap from theme.json.
@@ -74,6 +76,13 @@ const slotsIn = ( html ) => countIn( html, /<!-- wp:mai\/slot[\s{/]/g );
 // menu's links, but never fewer.
 const blocksIn = ( html ) => countIn( html, /<!-- wp:[a-z]/g );
 
+// What the theme ships. A file added or removed without updating this list is
+// a change nobody checked in the editor.
+const EXPECTED = {
+	templates: [ '404', 'archive', 'blank', 'canvas', 'front-page', 'home', 'index', 'narrow', 'page', 'search', 'single', 'wide', 'with-sidebar-page', 'with-sidebar-post' ],
+	parts: [ 'entry-footer', 'entry-header', 'footer', 'header', 'mobile-menu', 'page-header', 'posts-grid', 'sidebar' ],
+};
+
 const files = [
 	...readdirSync( `${ THEME }/templates` ).filter( ( f ) => f.endsWith( '.html' ) ).map( ( f ) => [ 'templates', 'wp_template', f.slice( 0, -5 ) ] ),
 	...readdirSync( `${ THEME }/parts` ).filter( ( f ) => f.endsWith( '.html' ) ).map( ( f ) => [ 'parts', 'wp_template_part', f.slice( 0, -5 ) ] ),
@@ -98,13 +107,21 @@ try {
 		} );
 	};
 
+	console.log( '\nThe theme\'s files' );
+
+	for ( const kind of [ 'templates', 'parts' ] ) {
+		const have = files.filter( ( [ folder ] ) => folder === kind ).map( ( [ , , slug ] ) => slug ).sort();
+		check( `${ kind }/ holds exactly ${ EXPECTED[ kind ].join( ', ' ) }`, have, EXPECTED[ kind ] );
+	}
+
 	console.log( '\nThe front end at 1440px wide, logged out' );
 
 	const visitor = await browser.newPage( { viewport: { width: 1440, height: 900 } } );
 	listen( visitor, 'front end' );
 
-	const measure = async ( id ) => {
-		await visitor.goto( `${ BASE }/?page_id=${ id }` );
+	// A page id, or a query string such as `p=12` or `s=Editor`.
+	const measure = async ( where ) => {
+		await visitor.goto( `${ BASE }/?${ 'number' === typeof where ? `page_id=${ where }` : where }` );
 
 		return visitor.evaluate( () => {
 			const box = ( selector ) => {
@@ -123,6 +140,7 @@ try {
 				paragraph: box( 'main .mai-test-paragraph' ),
 				wide: box( 'main .mai-test-wide' ),
 				full: box( 'main .mai-test-full' ),
+				grid: box( 'main .wp-block-post-template' ),
 				styles: [ ...document.querySelectorAll( 'link[id^="mai-"], style[id^="mai-"]' ) ].map( ( el ) => el.id ),
 				classes: main ? [ ...main.classList ] : null,
 			};
@@ -138,39 +156,59 @@ try {
 	check( 'page: a full group in content spans the window', spans( page ), true );
 
 	const wide = await measure( site.pages.wide );
+	check( 'Wide: the title is 1200px', wide.title?.width, 1200 );
 	check( 'Wide: a paragraph in content is 1200px', wide.paragraph?.width, 1200 );
 	check( 'Wide: a full group in content spans the window', spans( wide ), true );
 
+	// Without its own Wide width, Narrow's wide blocks would shrink to 600px.
 	const narrow = await measure( site.pages.narrow );
+	check( 'Narrow: the title is 600px', narrow.title?.width, 600 );
 	check( 'Narrow: a paragraph in content is 600px', narrow.paragraph?.width, 600 );
+	check( 'Narrow: a wide group in content is 740px', narrow.wide?.width, 740 );
 	check( 'Narrow: a full group in content spans the window', spans( narrow ), true );
 
-	// The first column holds the entry. Its paragraph starts where the column
-	// does, and nothing inside it reaches past either edge.
-	await visitor.goto( `${ BASE }/?page_id=${ site.pages.sidebar }` );
-	const column = await visitor.evaluate( () => {
-		const entry = document.querySelector( 'main .wp-block-template-part:not(aside)' );
-		const holder = entry?.parentElement;
+	// home.html for the blog home, archive.html, and search.html. index.html
+	// has no page of its own, since every list it would serve has its own
+	// template.
+	for ( const [ label, where ] of [ [ 'the blog home', '' ], [ 'a category archive', `cat=${ site.category }` ], [ 'a search', 's=Editor' ] ] ) {
+		check( `${ label }: the posts grid is 1200px`, ( await measure( where ) ).grid?.width, 1200 );
+	}
 
-		if ( ! holder ) {
-			return null;
-		}
+	// Post Content sits in the first column. It starts and ends where the
+	// column does, so does its paragraph, and nothing in the column reaches
+	// past either edge.
+	for ( const [ label, where ] of [ [ 'Page with sidebar', site.pages.sidebar ], [ 'Post with sidebar', `p=${ site.pages.post }` ] ] ) {
+		await measure( where );
+		const column = await visitor.evaluate( () => {
+			const content = document.querySelector( 'main .wp-block-post-content' );
+			const holder = content?.parentElement;
 
-		const edge = holder.getBoundingClientRect();
-		const paragraph = entry.querySelector( '.mai-test-paragraph' )?.getBoundingClientRect();
-		const outside = [ ...entry.querySelectorAll( '*' ) ].filter( ( el ) => {
-			const rect = el.getBoundingClientRect();
+			if ( ! holder || holder.matches( 'main' ) ) {
+				return null;
+			}
 
-			return rect.width > 0 && ( rect.left < edge.left - 0.5 || rect.right > edge.right + 0.5 );
-		} ).map( ( el ) => el.className || el.tagName );
+			const edge = holder.getBoundingClientRect();
+			const inset = ( el ) => {
+				const rect = el?.getBoundingClientRect();
 
-		return {
-			inset: paragraph ? [ Math.round( paragraph.left - edge.left ), Math.round( edge.right - paragraph.right ) ] : null,
-			outside: [ ...new Set( outside ) ],
-		};
-	} );
-	check( 'With sidebar: the paragraph fills the entry column, edge to edge', column?.inset, [ 0, 0 ] );
-	check( 'With sidebar: nothing in the entry reaches outside its column', column?.outside, [] );
+				return rect ? [ Math.round( rect.left - edge.left ), Math.round( edge.right - rect.right ) ] : null;
+			};
+			const outside = [ ...holder.querySelectorAll( '*' ) ].filter( ( el ) => {
+				const rect = el.getBoundingClientRect();
+
+				return rect.width > 0 && ( rect.left < edge.left - 0.5 || rect.right > edge.right + 0.5 );
+			} ).map( ( el ) => el.className || el.tagName );
+
+			return {
+				content: inset( content ),
+				paragraph: inset( content.querySelector( '.mai-test-paragraph' ) ),
+				outside: [ ...new Set( outside ) ],
+			};
+		} );
+		check( `${ label }: Post Content fills its column, edge to edge`, column?.content, [ 0, 0 ] );
+		check( 'and so does its paragraph', column?.paragraph, [ 0, 0 ] );
+		check( 'and nothing in the column reaches outside it', column?.outside, [] );
+	}
 
 	console.log( '\nBlock stylesheets load where their block is' );
 
@@ -311,16 +349,12 @@ try {
 	const patterns = await editor.evaluate( async () => ( await wp.data.resolveSelect( 'core' ).getBlockPatterns() ).map( ( p ) => [ p.name, p.templateTypes ?? [] ] ) );
 	const offered = ( name, template ) => patterns.some( ( [ n, types ] ) => n === name && types.includes( template ) );
 
-	check( 'Post: With sidebar is offered for Single Posts', offered( 'mai-theme/layout-post-with-sidebar', 'single' ) );
-
-	for ( const template of [ 'index', 'home', 'archive', 'search' ] ) {
-		check( `Archive: List is offered for ${ template }`, offered( 'mai-theme/layout-archive-list', template ) );
-	}
+	check( 'Post: With sidebar is offered for Single Posts', offered( 'mai/layout-post-with-sidebar', 'single' ) );
 
 	// A pattern never opens as a template, so the loop above never sees its
 	// markup. This parses it as the Design panel does when it applies one, and
 	// walks every block, nested ones included.
-	const layouts = [ [ 'mai-theme/layout-archive-list', 'Archive: List' ], [ 'mai-theme/layout-post-with-sidebar', 'Post: With sidebar' ] ];
+	const layouts = [ [ 'mai/layout-post-with-sidebar', 'Post: With sidebar' ] ];
 	const parsed = await editor.evaluate( async ( names ) => {
 		const all = await wp.data.resolveSelect( 'core' ).getBlockPatterns();
 		const count = ( blocks ) => blocks.reduce( ( n, b ) => n + 1 + count( b.innerBlocks ), 0 );

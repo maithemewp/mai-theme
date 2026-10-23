@@ -73,29 +73,6 @@
 }
 
 /**
- * # Layout
- */
-
-/* The Wide and Narrow templates put these on their main group. Constrained layouts read this
-   variable when no contentSize is set, so the shared entry part's Post Content follows the
-   template's width and alignfull still works. */
-.mai-theme-wide {
-	--wp--style--global--content-size: var(--wp--style--global--wide-size);
-}
-
-.mai-theme-narrow {
-	--wp--style--global--content-size: 600px;
-}
-
-/* The shared entry part is full width so content inside it can break out on a page. In the With
-   sidebar columns there is no window edge to keep content off, and core never zeroes root padding
-   on a full width block, so the entry would gain a gap on each side. Zero it here instead. */
-.mai-theme-with-sidebar {
-	--wp--style--root--padding-left: 0px;
-	--wp--style--root--padding-right: 0px;
-}
-
-/**
  * # Typography
  */
 

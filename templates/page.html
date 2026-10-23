@@ -5,7 +5,11 @@
 <!-- wp:mai/slot {"location":"mai/after-header","lock":{"remove":true}} /-->
 
 <!-- wp:group {"tagName":"main","style":{"spacing":{"padding":{"top":"var:preset|spacing|50","bottom":"var:preset|spacing|80"}}},"layout":{"type":"constrained"}} -->
-<main class="wp-block-group" style="padding-top:var(--wp--preset--spacing--50);padding-bottom:var(--wp--preset--spacing--80)"><!-- wp:template-part {"slug":"entry","align":"full"} /--></main>
+<main class="wp-block-group" style="padding-top:var(--wp--preset--spacing--50);padding-bottom:var(--wp--preset--spacing--80)"><!-- wp:template-part {"slug":"page-header"} /-->
+
+<!-- wp:post-content {"align":"full","layout":{"type":"constrained"}} /-->
+
+<!-- wp:template-part {"slug":"entry-footer"} /--></main>
 <!-- /wp:group -->
 
 <!-- wp:mai/slot {"location":"mai/before-footer","lock":{"remove":true}} /-->

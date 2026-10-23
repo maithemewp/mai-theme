@@ -187,15 +187,13 @@ $ids = json_decode(
 		echo wp_json_encode( [
 			"category"     => $category["term_id"],
 			"post"         => $make( "post", "Hello slots" ),
-			"post_sidebar" => $make( "post", "Slots post with sidebar", "with-sidebar" ),
+			"post_sidebar" => $make( "post", "Slots post with sidebar", "with-sidebar-post" ),
 			"page"         => $make( "page", "Slots page" ),
 			"blank"        => $make( "page", "Slots blank page", "blank" ),
 			"canvas"       => $make( "page", "Slots canvas page", "canvas" ),
 			"wide"         => $make( "page", "Slots wide page", "wide" ),
 			"narrow"       => $make( "page", "Slots narrow page", "narrow" ),
-			"post_wide"    => $make( "post", "Slots post on Wide", "wide" ),
-			"post_narrow"  => $make( "post", "Slots post on Narrow", "narrow" ),
-			"page_sidebar" => $make( "page", "Slots page with sidebar", "with-sidebar" ),
+			"page_sidebar" => $make( "page", "Slots page with sidebar", "with-sidebar-page" ),
 			"front"        => $make( "page", "Slots front page" ),
 		] );'
 	),
@@ -218,10 +216,8 @@ $pages = [
 	[ 'page', 'page_id=' . $ids['page'], $posts_home, 200, $entry ],
 	[ 'Wide page', 'page_id=' . $ids['wide'], $posts_home, 200, $entry ],
 	[ 'Narrow page', 'page_id=' . $ids['narrow'], $posts_home, 200, $entry ],
-	[ 'Wide post', 'p=' . $ids['post_wide'], $posts_home, 200, $entry ],
-	[ 'Narrow post', 'p=' . $ids['post_narrow'], $posts_home, 200, $entry ],
-	[ 'With sidebar page', 'page_id=' . $ids['page_sidebar'], $posts_home, 200, $sidebar ],
-	[ 'With sidebar post', 'p=' . $ids['post_sidebar'], $posts_home, 200, $sidebar ],
+	[ 'Page with sidebar', 'page_id=' . $ids['page_sidebar'], $posts_home, 200, $sidebar ],
+	[ 'Post with sidebar', 'p=' . $ids['post_sidebar'], $posts_home, 200, $sidebar ],
 	[ 'Blank page', 'page_id=' . $ids['blank'], $posts_home, 200, GLOBAL_SLOTS ],
 	[ '404', 'p=999999', $posts_home, 404, GLOBAL_SLOTS ],
 	[ 'Canvas page', 'page_id=' . $ids['canvas'], $posts_home, 200, [] ],
@@ -284,7 +280,7 @@ check( 'the mobile menu adds no <nav> inside the header menu', \Dom\HTMLDocument
 $footer = \Dom\HTMLDocument::createFromString( $single, LIBXML_NOERROR )->querySelector( 'footer' );
 check( 'the footer holds no menu', null !== $footer && null === $footer->querySelector( '.wp-block-navigation' ) );
 check( "the footer's copyright shows this year, through the binding", null !== $footer && str_contains( (string) $footer->textContent, trim( wp_cli_php( 'echo wp_date( "Y" );' ) ) ) );
-check( 'the sidebar renders in an <aside> element', str_contains( $results['With sidebar page']['body'], '<aside class="wp-block-template-part"' ) );
+check( 'the sidebar renders in an <aside> element', str_contains( $results['Page with sidebar']['body'], '<aside class="wp-block-template-part"' ) );
 
 check( 'the Canvas page has no <header> element', str_contains( $results['Canvas page']['body'], '<header' ), false );
 check( 'the Canvas page still shows its content', str_contains( $results['Canvas page']['body'], 'Body of Slots canvas page.' ) );
@@ -307,12 +303,6 @@ function entry_meta( string $html ): ?string {
 	return $date?->parentElement?->textContent;
 }
 
-check( "the post's meta group shows its year", str_contains( (string) entry_meta( $single ), '2019' ) );
-check( 'the page has no meta group', entry_meta( $results['page']['body'] ), null );
-// Inside main only. Core's inlined CSS carries a 2019 URL in a comment.
-$main = \Dom\HTMLDocument::createFromString( $results['page']['body'], LIBXML_NOERROR )->querySelector( 'main' );
-check( "and no sign of the page's year in main", null !== $main && ! str_contains( (string) $main->textContent, '2019' ) );
-
 /**
  * The first element matching a selector inside `main`, or null.
  *
@@ -324,37 +314,68 @@ function in_main( string $html, string $selector ): ?\Dom\Element {
 	return \Dom\HTMLDocument::createFromString( $html, LIBXML_NOERROR )->querySelector( "main $selector" );
 }
 
-$main_classes = static fn( string $label ): array => explode( ' ', (string) \Dom\HTMLDocument::createFromString( $results[ $label ]['body'], LIBXML_NOERROR )->querySelector( 'main' )?->getAttribute( 'class' ) );
-
-check( 'the Wide page puts mai-theme-wide on main', in_array( 'mai-theme-wide', $main_classes( 'Wide page' ), true ) );
-check( 'the Narrow page puts mai-theme-narrow on main', in_array( 'mai-theme-narrow', $main_classes( 'Narrow page' ), true ) );
 check( 'the latest-posts home page is headed Blog', trim( (string) in_main( $results['blog home, showing the latest posts']['body'], 'h1' )?->textContent ), 'Blog' );
 check( 'the search page has a search form', null !== in_main( $results['search']['body'], 'form.wp-block-search' ) );
 
-// Switching a post to the sidebar layout keeps what Single Posts shows after
-// the entry. The previous and next links are for posts only.
-$sidebar_post = $results['With sidebar post']['body'];
-check( 'the With sidebar post links to the previous and next posts', null !== in_main( $sidebar_post, 'nav[aria-label="Posts"] .wp-block-post-navigation-link' ) );
-check( 'and has the comments block', null !== in_main( $sidebar_post, '.wp-block-comments' ) );
-check( 'the With sidebar page has no post links', in_main( $results['With sidebar page']['body'], 'nav[aria-label="Posts"]' ), null );
-
-// The same for Wide and Narrow, which are offered on posts too.
-foreach ( [ 'Wide', 'Narrow' ] as $layout ) {
-	$post = $results[ "$layout post" ]['body'];
-	check( "the $layout post links to the previous and next posts", null !== in_main( $post, 'nav[aria-label="Posts"] .wp-block-post-navigation-link' ) );
+// Posts show the meta row, the previous and next links, and comments, on
+// Single and on Post with sidebar. Pages show none of them on any template,
+// because no page template holds them.
+foreach ( [ 'single post', 'Post with sidebar' ] as $label ) {
+	$post = $results[ $label ]['body'];
+	check( "the $label's meta row shows its year", str_contains( (string) entry_meta( $post ), '2019' ) );
+	check( 'and it links to the previous and next posts', null !== in_main( $post, 'nav[aria-label="Posts"] .wp-block-post-navigation-link' ) );
 	check( 'and has the comments block', null !== in_main( $post, '.wp-block-comments' ) );
-	check( "the $layout page has no post links", in_main( $results[ "$layout page" ]['body'], 'nav[aria-label="Posts"]' ), null );
 }
+
+foreach ( [ 'page', 'Wide page', 'Narrow page', 'Page with sidebar' ] as $label ) {
+	$page = $results[ $label ]['body'];
+	$main = \Dom\HTMLDocument::createFromString( $page, LIBXML_NOERROR )->querySelector( 'main' );
+	check( "the $label has no meta row", entry_meta( $page ), null );
+	// Inside main only. Core's inlined CSS carries a 2019 URL in a comment.
+	check( "and no sign of the page's year in main", null !== $main && ! str_contains( (string) $main->textContent, '2019' ) );
+	check( 'and no post links', in_main( $page, 'nav[aria-label="Posts"]' ), null );
+	check( 'and no comments block', in_main( $page, '.wp-block-comments' ), null );
+}
+
+// The custom templates each type is offered, as the Template panel lists them.
+// Wide, Narrow, Blank, and Canvas hold no post links or comments, so they are
+// for pages only, and each sidebar template is for its own type.
+$offered = json_decode(
+	wp_cli_php(
+		'echo wp_json_encode( [
+			"post" => wp_get_theme()->get_page_templates( null, "post" ),
+			"page" => wp_get_theme()->get_page_templates( null, "page" ),
+		] );'
+	),
+	true,
+	512,
+	JSON_THROW_ON_ERROR
+);
+
+$sorted = static function ( array $templates ): array {
+	ksort( $templates );
+
+	return $templates;
+};
+
+check( 'posts are offered Post with sidebar, and nothing else', $sorted( $offered['post'] ), [ 'with-sidebar-post' => 'Post with sidebar' ] );
+check(
+	'pages are offered Wide, Narrow, Page with sidebar, Blank, and Canvas, and nothing else',
+	$sorted( $offered['page'] ),
+	$sorted( [ 'wide' => 'Wide', 'narrow' => 'Narrow', 'with-sidebar-page' => 'Page with sidebar', 'blank' => 'Blank', 'canvas' => 'Canvas' ] )
+);
 
 // The pattern is the template, offered in the Design panel. PHP drops the one
 // newline after the closing tag, so what follows it is exactly what the
 // pattern prints. (The tag itself cannot appear in this comment: it would end
 // PHP mode here.)
 $pattern = (string) file_get_contents( dirname( __DIR__ ) . '/patterns/layout-post-with-sidebar.php' );
+$sidebar_file = dirname( __DIR__ ) . '/templates/with-sidebar-post.html';
+check( 'the Post: With sidebar pattern is named mai/layout-post-with-sidebar', 1 === preg_match( '~^ \* Slug: mai/layout-post-with-sidebar$~m', $pattern ) );
 check(
-	'the Post: With sidebar pattern prints templates/with-sidebar.html exactly',
+	'and prints templates/with-sidebar-post.html exactly',
 	substr( $pattern, (int) strpos( $pattern, "?>\n" ) + 3 ),
-	(string) file_get_contents( dirname( __DIR__ ) . '/templates/with-sidebar.html' )
+	is_file( $sidebar_file ) ? (string) file_get_contents( $sidebar_file ) : 'no such file'
 );
 
 foreach ( [ CONTENT_AREAS => 'Mai Content Areas', COLUMNS => 'Mai Columns' ] as $plugin => $name ) {

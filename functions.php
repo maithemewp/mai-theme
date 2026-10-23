@@ -2,9 +2,8 @@
 
 declare( strict_types=1 );
 
-// Not Mai\Theme, which belongs to the mai-theme-core package. Sharing it means
-// a function here, or one the package adds later, fatals on the same name.
-namespace Mai\Theme\Starter;
+// The package is Mai\Theme\Core, so nothing here can collide with a function it has or adds later.
+namespace Mai\Theme;
 
 defined( 'ABSPATH' ) || exit;
 

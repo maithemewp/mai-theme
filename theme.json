@@ -338,26 +338,9 @@
 	},
 	"customTemplates": [
 		{
-			"name": "blank",
-			"title": "Blank",
-			"postTypes": [
-				"post",
-				"page"
-			]
-		},
-		{
-			"name": "canvas",
-			"title": "Canvas",
-			"postTypes": [
-				"post",
-				"page"
-			]
-		},
-		{
 			"name": "wide",
 			"title": "Wide",
 			"postTypes": [
-				"post",
 				"page"
 			]
 		},
@@ -365,15 +348,34 @@
 			"name": "narrow",
 			"title": "Narrow",
 			"postTypes": [
-				"post",
 				"page"
 			]
 		},
 		{
-			"name": "with-sidebar",
-			"title": "With sidebar",
+			"name": "with-sidebar-post",
+			"title": "Post with sidebar",
 			"postTypes": [
-				"post",
+				"post"
+			]
+		},
+		{
+			"name": "with-sidebar-page",
+			"title": "Page with sidebar",
+			"postTypes": [
+				"page"
+			]
+		},
+		{
+			"name": "blank",
+			"title": "Blank",
+			"postTypes": [
+				"page"
+			]
+		},
+		{
+			"name": "canvas",
+			"title": "Canvas",
+			"postTypes": [
 				"page"
 			]
 		}
@@ -400,8 +402,18 @@
 			"area": "sidebar"
 		},
 		{
-			"name": "entry",
-			"title": "Entry",
+			"name": "entry-header",
+			"title": "Entry header",
+			"area": "uncategorized"
+		},
+		{
+			"name": "page-header",
+			"title": "Page header",
+			"area": "uncategorized"
+		},
+		{
+			"name": "entry-footer",
+			"title": "Entry footer",
 			"area": "uncategorized"
 		},
 		{

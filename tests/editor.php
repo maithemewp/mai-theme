@@ -2,7 +2,8 @@
 /**
  * Sets up the throwaway site for tests/editor.mjs.
  *
- *   php tests/editor.php            make the pages the widths are measured on
+ *   php tests/editor.php            make the posts and pages the widths are
+ *                                   measured on
  *   php tests/editor.php clean 3,7  delete them, and any menus the editor made
  *                                   that are not in the list
  *
@@ -12,7 +13,8 @@
  * the next script sees the site as it was.
  *
  * Everything this makes carries the `_mai_theme_tests` meta set to `editor`,
- * so it deletes its own pages, and only its own, even after a run that died.
+ * so it deletes its own posts and pages, and only its own, even after a run
+ * that died.
  */
 
 declare( strict_types=1 );
@@ -21,7 +23,7 @@ namespace Mai\Theme\Tests;
 
 require getenv( 'WP' ) . '/wp-load.php';
 
-foreach ( get_posts( [ 'post_type' => 'page', 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids', 'meta_key' => '_mai_theme_tests', 'meta_value' => 'editor' ] ) as $stale ) {
+foreach ( get_posts( [ 'post_type' => [ 'page', 'post' ], 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids', 'meta_key' => '_mai_theme_tests', 'meta_value' => 'editor' ] ) as $stale ) {
 	wp_delete_post( $stale, true );
 }
 
@@ -56,10 +58,10 @@ $content = '<!-- wp:paragraph {"className":"mai-test-paragraph"} -->
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->';
 
-$make = static function ( string $title, string $template ) use ( $content ): int {
+$make = static function ( string $title, string $template, string $type = 'page' ) use ( $content ): int {
 	$id = wp_insert_post(
 		[
-			'post_type'    => 'page',
+			'post_type'    => $type,
 			'post_status'  => 'publish',
 			'post_title'   => $title,
 			'post_content' => $content,
@@ -81,13 +83,18 @@ $make = static function ( string $title, string $template ) use ( $content ): in
 
 echo wp_json_encode(
 	[
-		'url'   => site_url(),
-		'menus' => $menus,
-		'pages' => [
+		'url'      => site_url(),
+		'menus'    => $menus,
+		// The post's category, since it is given none of its own.
+		'category' => (int) get_option( 'default_category' ),
+		'pages'    => [
 			'page'    => $make( 'Editor page', '' ),
 			'wide'    => $make( 'Editor wide page', 'wide' ),
 			'narrow'  => $make( 'Editor narrow page', 'narrow' ),
-			'sidebar' => $make( 'Editor page with sidebar', 'with-sidebar' ),
+			'sidebar' => $make( 'Editor page with sidebar', 'with-sidebar-page' ),
+			// A post, so the blog home, its category archive, and a search for
+			// "Editor" each list at least one, and the grid has a card to lay out.
+			'post'    => $make( 'Editor post with sidebar', 'with-sidebar-post', 'post' ),
 		],
 	]
 );

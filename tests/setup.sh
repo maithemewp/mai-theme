@@ -78,6 +78,26 @@ run_tests() {
 		return 1
 	fi
 
+	# Names the theme must not carry. No block in the starter has display
+	# rules, and widths are native block settings, so there is no layout class
+	# either. `mai-theme` names only the theme and its package, never what the
+	# theme does, so `mai-theme-` and `mai-theme/` are allowed only in
+	# `mai-theme-core` and `mai-theme-scaffold`.
+	local stray
+	stray="$(
+		cd "$THEME_DIR" &&
+		grep -rnoE 'maiSlotsRules|mai-theme[-/][a-z0-9-]*' templates parts patterns style.css assets/css functions.php inc 2> /dev/null |
+		grep -vE ':mai-theme-(core|scaffold)$' || true
+	)"
+
+	if [ -n "$stray" ]; then
+		echo "Names the theme must not carry, in its templates, parts, patterns, CSS, or PHP:"
+		echo "$stray"
+		failed=1
+	else
+		echo "No maiSlotsRules, and no mai-theme- name but mai-theme-core and mai-theme-scaffold."
+	fi
+
 	# Emptied first. The log is read below as the record of this run, and a
 	# fatal from an earlier one lingering in it would fail a clean run.
 	: > "$WP/wp-content/debug.log"
