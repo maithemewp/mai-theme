@@ -142,6 +142,98 @@ function fetch_url( string $url ): array {
 }
 
 /**
+ * Send one request to the test server, with cookies, without following redirects.
+ *
+ * `fetch_url()` cannot log in: it sends no cookies and cannot POST. This keeps
+ * the cookies a response sets, so the next request can send them back.
+ *
+ * @param string                     $url     The full URL.
+ * @param array<string, string>      $cookies Cookies to send, name to value, as the server set them.
+ * @param array<string, string>|null $form    Fields to POST, or null for a GET.
+ * @return array{status: int, body: string, cookies: array<string, string>}
+ */
+function request( string $url, array $cookies = [], ?array $form = null ): array {
+	$headers = [];
+
+	if ( [] !== $cookies ) {
+		$headers[] = 'Cookie: ' . implode( '; ', array_map( static fn( string $name, string $value ): string => "$name=$value", array_keys( $cookies ), $cookies ) );
+	}
+
+	if ( null !== $form ) {
+		$headers[] = 'Content-Type: application/x-www-form-urlencoded';
+	}
+
+	$context = stream_context_create(
+		[
+			'http' => [
+				'method'          => null === $form ? 'GET' : 'POST',
+				'header'          => implode( "\r\n", $headers ),
+				'content'         => null === $form ? '' : http_build_query( $form ),
+				'ignore_errors'   => true,
+				'follow_location' => 0,
+				'timeout'         => 60,
+			],
+		]
+	);
+
+	$body     = @file_get_contents( $url, false, $context );
+	$response = http_get_last_response_headers();
+
+	if ( false === $body || ! is_array( $response ) || 1 !== preg_match( '~^HTTP/\S+\s+(\d{3})~', $response[0] ?? '', $matches ) ) {
+		fwrite( STDERR, "Cannot reach $url. Is the test server running? Run ./tests/setup.sh --run.\n" );
+		exit( 1 );
+	}
+
+	$set = [];
+
+	foreach ( $response as $line ) {
+		// A cookie set to a space or `deleted` is WordPress clearing it.
+		if ( 1 === preg_match( '~^Set-Cookie:\s*([^=;\s]+)=([^;]*)~i', $line, $cookie ) && ! in_array( $cookie[2], [ '', '+', '%20', 'deleted' ], true ) ) {
+			$set[ $cookie[1] ] = $cookie[2];
+		}
+	}
+
+	return [
+		'status'  => (int) $matches[1],
+		'body'    => $body,
+		'cookies' => $set,
+	];
+}
+
+/**
+ * Log in over HTTP, as a browser does, and return the cookies to send after.
+ *
+ * wp-login.php refuses a login without its test cookie, which a browser gets
+ * from loading the form first, so that cookie is sent too, and kept.
+ *
+ * @param string $user     The user's login.
+ * @param string $password The user's password.
+ * @return array{status: int, logged_in: bool, cookies: array<string, string>}
+ */
+function log_in( string $user, string $password ): array {
+	$test_cookie = [ 'wordpress_test_cookie' => 'WP%20Cookie%20check' ];
+	$login       = request(
+		BASE_URL . '/wp-login.php',
+		$test_cookie,
+		[
+			'log'         => $user,
+			'pwd'         => $password,
+			'wp-submit'   => 'Log In',
+			'redirect_to' => BASE_URL . '/wp-admin/',
+			'testcookie'  => '1',
+		]
+	);
+
+	$logged_in = array_filter( $login['cookies'], static fn( string $name ): bool => str_starts_with( $name, 'wordpress_logged_in_' ), ARRAY_FILTER_USE_KEY );
+
+	return [
+		'status'    => $login['status'],
+		'logged_in' => [] !== $logged_in,
+		'cookies'   => $test_cookie + $login['cookies'],
+	];
+}
+
+/**
  * Run PHP inside the test site, with WordPress loaded, and return what it prints.
  *
  * It runs in its own `php` process, so nothing it loads leaks into the calling

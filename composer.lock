@@ -114,7 +114,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../LocalPackages/mai-theme-core",
-                "reference": "5236f46ae390ac0b91bac3d57d968d266f2ca94e"
+                "reference": "ed35bec7d2f5e5198b4a4a5ae1dc12a47a9dae43"
             },
             "require": {
                 "afragen/wp-dependency-installer": "^4",
@@ -131,7 +131,12 @@
                     "src/template-parts.php",
                     "src/performance.php",
                     "src/dependencies.php",
-                    "src/template-hierarchy.php"
+                    "src/template-hierarchy.php",
+                    "src/login.php",
+                    "src/gravity-forms.php",
+                    "src/embeds.php",
+                    "src/content.php",
+                    "src/admin.php"
                 ]
             },
             "scripts": {
