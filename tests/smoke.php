@@ -350,6 +350,14 @@ foreach ( [ 'mai-theme', 'acme' ] as $theme ) {
 	$gap = 1 === preg_match( '~Before the gap</p>(.*?)<p\b[^>]*>After the gap~s', $post['body'], $between ) ? $between[1] : null;
 	check( 'both paragraphs with text render', null !== $gap );
 	check( 'and the empty paragraphs between them are gone', trim( (string) $gap ), '' );
+	// Core's own the_content filters turn a null into a string long before
+	// priority 99, so the null comes from a filter in between, as a plugin's
+	// can. A TypeError is caught, so the check fails instead of the script.
+	check(
+		'a null reaching the empty paragraph filter comes back as null, not a fatal error',
+		trim( wp_cli_php( 'add_filter( "the_content", "__return_null", 50 ); try { var_export( apply_filters( "the_content", "<p></p>" ) ); } catch ( TypeError $e ) { echo "TypeError: " . $e->getMessage(); }' ) ),
+		'NULL'
+	);
 
 	$embeds = json_decode(
 		wp_cli_php(

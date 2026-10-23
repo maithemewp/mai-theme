@@ -114,7 +114,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../LocalPackages/mai-theme-core",
-                "reference": "ed35bec7d2f5e5198b4a4a5ae1dc12a47a9dae43"
+                "reference": "1d4b0d7947d0ece6cf67e1ecacc5ffa5d1fa2478"
             },
             "require": {
                 "afragen/wp-dependency-installer": "^4",
