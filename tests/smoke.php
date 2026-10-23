@@ -61,21 +61,21 @@ foreach ( [ 'mai-theme', 'acme' ] as $theme ) {
 	$version = header_version( $theme );
 	check( "this folder's style.css header has a version", null !== $version );
 
-	preg_match( '~<link[^>]*\bid=([\'"])mai-theme-css\1[^>]*\bhref=([\'"])([^\'"]+)\2~', $html, $link );
-	check( "mai-theme-css loads style.css from this folder, versioned $version plus its file time", 1 === preg_match( '~^' . preg_quote( $folder . 'style.css?ver=' . $version . '.', '~' ) . '\d+$~', $link[3] ?? '' ) );
+	preg_match( '~<link[^>]*\bid=([\'"])mai-css\1[^>]*\bhref=([\'"])([^\'"]+)\2~', $html, $link );
+	check( "mai-css loads style.css from this folder, versioned $version plus its file time", 1 === preg_match( '~^' . preg_quote( $folder . 'style.css?ver=' . $version . '.', '~' ) . '\d+$~', $link[3] ?? '' ) );
 
 	// Core inlines a block stylesheet this small, so the page shows the handle
 	// but no URL. The URL and the file core read are checked inside the site,
 	// by handing core's render_block filter a Navigation block, which registers
 	// the stylesheet as a real page does, without rendering a menu.
-	check( 'the page prints the Navigation block CSS, as mai-theme-core-navigation', 1 === preg_match( '~<(?:link|style)[^>]*\bid=([\'"])mai-theme-core-navigation(?:-inline)?-css\1~', $html ) );
+	check( 'the page prints the Navigation block CSS, as mai-core-navigation', 1 === preg_match( '~<(?:link|style)[^>]*\bid=([\'"])mai-core-navigation(?:-inline)?-css\1~', $html ) );
 
 	$navigation = json_decode(
 		wp_cli_php(
 			'$block = [ "blockName" => "core/navigation", "attrs" => [], "innerBlocks" => [], "innerHTML" => "", "innerContent" => [] ];
 			apply_filters( "render_block", "", $block, new WP_Block( $block ) );
-			$style = wp_styles()->query( "mai-theme-core-navigation" );
-			echo wp_json_encode( [ "src" => $style ? $style->src : null, "path" => $style ? wp_styles()->get_data( "mai-theme-core-navigation", "path" ) : null ] );'
+			$style = wp_styles()->query( "mai-core-navigation" );
+			echo wp_json_encode( [ "src" => $style ? $style->src : null, "path" => $style ? wp_styles()->get_data( "mai-core-navigation", "path" ) : null ] );'
 		),
 		true,
 		512,

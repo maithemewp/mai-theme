@@ -123,7 +123,7 @@ try {
 				paragraph: box( 'main .mai-test-paragraph' ),
 				wide: box( 'main .mai-test-wide' ),
 				full: box( 'main .mai-test-full' ),
-				styles: [ ...document.querySelectorAll( 'link[id^="mai-theme-"], style[id^="mai-theme-"]' ) ].map( ( el ) => el.id ),
+				styles: [ ...document.querySelectorAll( 'link[id^="mai-"], style[id^="mai-"]' ) ].map( ( el ) => el.id ),
 				classes: main ? [ ...main.classList ] : null,
 			};
 		} );
@@ -175,14 +175,14 @@ try {
 	console.log( '\nBlock stylesheets load where their block is' );
 
 	const sidebarStyles = ( await measure( site.pages.sidebar ) ).styles;
-	const loaded = ( styles, block ) => styles.some( ( id ) => new RegExp( `^mai-theme-core-${ block }(-inline)?-css$` ).test( id ) );
+	const loaded = ( styles, block ) => styles.some( ( id ) => new RegExp( `^mai-core-${ block }(-inline)?-css$` ).test( id ) );
 	check( 'the page with the sidebar loads the Search block CSS', loaded( sidebarStyles, 'search' ) );
 	check( 'a page with no Search block does not', loaded( page.styles, 'search' ), false );
 	check( 'a page loads the Navigation block CSS, for the header menu', loaded( page.styles, 'navigation' ) );
 	check( 'a page with no Query Loop leaves out the Post Template CSS', loaded( page.styles, 'post-template' ), false );
 
 	await visitor.goto( `${ BASE }/` );
-	check( 'the blog home loads the Post Template CSS', loaded( await visitor.evaluate( () => [ ...document.querySelectorAll( '[id^="mai-theme-"]' ) ].map( ( el ) => el.id ) ), 'post-template' ) );
+	check( 'the blog home loads the Post Template CSS', loaded( await visitor.evaluate( () => [ ...document.querySelectorAll( '[id^="mai-"]' ) ].map( ( el ) => el.id ) ), 'post-template' ) );
 
 	console.log( '\nBlock stylesheets take effect' );
 
