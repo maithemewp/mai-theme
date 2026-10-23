@@ -303,8 +303,15 @@ try {
 	await editor.goto( `${ BASE }/wp-login.php` );
 	await editor.fill( '#user_login', 'admin' );
 	await editor.fill( '#user_pass', 'password' );
+	// The dashboard loads dozens of scripts and styles from the test server, and
+	// waiting for all of it timed this check out twice. The redirect is enough:
+	// the session cookie is set once it arrives, and the editor loads below.
+	// Given 2 minutes, not 30 seconds: with the machine busy, the login request
+	// alone has stalled for longer than that, though it takes under a second
+	// when the machine is idle (measured with curl: 0.5s for the login, 0.3s for
+	// the dashboard).
 	await editor.click( '#wp-submit' );
-	await editor.waitForURL( /wp-admin/ );
+	await editor.waitForURL( /wp-admin/, { waitUntil: 'commit', timeout: 120000 } );
 
 	// Every block in the editor, depth first, with its parents' names, so a
 	// failure says where in the file the block sits. Walked by block order,
@@ -334,11 +341,13 @@ try {
 		return all;
 	} );
 
-	// Settled once the block count holds still for three reads in a row, so
-	// the parts, which load after the template, are in. A file that never
-	// opens, or never holds still, says so instead of passing on an empty or
-	// half-loaded list.
-	const settle = async ( id ) => {
+	// Settled once the block count holds still for three reads in a row, and
+	// has reached `least`, the openers the file itself holds. The parts load
+	// after the template, and on a busy machine the count can sit still for
+	// seconds before they arrive, so holding still alone is not enough. A file
+	// that never opens, or never reaches its count, says so instead of passing
+	// on an empty or half-loaded list.
+	const settle = async ( id, least = 1 ) => {
 		try {
 			await editor.waitForFunction( ( want ) => window.wp?.data?.select( 'core/editor' )?.getCurrentPostId() === want, id, { timeout: 60000 } );
 		} catch {
@@ -351,7 +360,7 @@ try {
 		for ( let tries = 0; tries < 60 && steady < 3; tries++ ) {
 			await editor.waitForTimeout( 500 );
 			const count = ( await collect() ).length;
-			steady = count > 0 && count === last ? steady + 1 : 0;
+			steady = count >= least && count === last ? steady + 1 : 0;
 			last = count;
 		}
 
@@ -363,7 +372,7 @@ try {
 		const file = `${ folder }/${ slug }.html`;
 
 		await editor.goto( `${ BASE }/wp-admin/site-editor.php?p=${ encodeURIComponent( `/${ type }/${ id }` ) }&canvas=edit` );
-		const { settled, blocks } = await settle( id );
+		const { settled, blocks } = await settle( id, blocksIn( source( folder, slug ) ) );
 		const html = source( folder, slug );
 
 		check( `${ file } opens in the editor and its blocks settle`, settled );
