@@ -342,11 +342,12 @@ try {
 	} );
 
 	// Settled once the block count holds still for three reads in a row, and
-	// has reached `least`, the openers the file itself holds. The parts load
-	// after the template, and on a busy machine the count can sit still for
-	// seconds before they arrive, so holding still alone is not enough. A file
-	// that never opens, or never reaches its count, says so instead of passing
-	// on an empty or half-loaded list.
+	// has reached `least`: the openers in the file and in every part it pulls
+	// in, as `blocksIn()` counts them. The parts load after the template, and
+	// on a busy machine the count can sit still for seconds before they
+	// arrive, so holding still alone is not enough. A file that never opens,
+	// or never reaches its count, says so instead of passing on an empty or
+	// half-loaded list.
 	const settle = async ( id, least = 1 ) => {
 		try {
 			await editor.waitForFunction( ( want ) => window.wp?.data?.select( 'core/editor' )?.getCurrentPostId() === want, id, { timeout: 60000 } );
@@ -433,7 +434,7 @@ try {
 	// the Query Loop in the posts-grid part, where every list on the site
 	// gets its design. A pattern marked Inserter: no would be missing here.
 	await editor.goto( `${ BASE }/wp-admin/site-editor.php?p=${ encodeURIComponent( '/wp_template_part/mai-theme//posts-grid' ) }&canvas=edit` );
-	check( 'the posts-grid part opens in the editor and its blocks settle', ( await settle( 'mai-theme//posts-grid' ) ).settled );
+	check( 'the posts-grid part opens in the editor and its blocks settle', ( await settle( 'mai-theme//posts-grid', blocksIn( source( 'parts', 'posts-grid' ) ) ) ).settled );
 
 	const designs = DESIGNS.map( ( [ name ] ) => name );
 	const changeDesign = () => {

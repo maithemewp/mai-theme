@@ -15,14 +15,19 @@ The reasons behind each rule are in the spec, `~/Themes/mai-theme/docs/specs/202
 
 **How a client theme starts.** It is a renamed copy of `mai-theme`. The README's "Start a client site" procedure is the one to follow. Plumbing fixes reach old copies through the `maithemewp/mai-theme-core` package, so a client copy never forks that code.
 
+## House rules
+
+- **The starter never relies on Mai Slots rules for base content.** No block in the starter's markup carries a "Show when" rule (`maiSlotsRules`). Where posts and pages need different blocks, they get different parts or templates, as `entry-header` and `page-header` do. Rules are for client builds. → spec, "Conventions"
+- **A value is set once, in `theme.json`.** A block in a template, part, or pattern carries a style setting only when it really differs. A width equal to a `theme.json` size uses its variable, `var(--wp--style--global--content-size)` or `var(--wp--style--global--wide-size)`. → spec, "Conventions" and "theme.json"
+
 ## Repo shape
 
 - `style.css`: the theme header, the reset, and only what `theme.json` cannot say.
 - `theme.json`: all tokens, settings, and styles.
-- `functions.php`: loads Composer's autoloader and then `inc/*.php`. Nothing else. Its namespace is `Mai\Theme\Starter`.
+- `functions.php`: loads Composer's autoloader and then `inc/*.php`. Nothing else. Its namespace is `Mai\Theme`.
 - `inc/`: the site's own PHP. Empty in the starter.
 - `templates/`, `parts/`: plain HTML files.
-- `patterns/`: layout patterns that swap a whole template.
+- `patterns/`: layout patterns that swap a whole template, and post designs for the Query Loop.
 - `styles/blocks/<block>/`: block styles, as JSON.
 - `assets/css/blocks/<namespace>/<block>.css`: per-block CSS.
 - `assets/fonts/`: self-hosted fonts and their licences.
@@ -64,7 +69,7 @@ The token names are a contract: future patterns refer to them. Add freely. Renam
 - **One global `:focus-visible` outline.**
 - **Line height pairs with size in `style.css`,** because `theme.json` cannot bind leading to a size preset.
 - **Footer stays down:** `.wp-site-blocks` is a flex column with a full-viewport minimum height, and `main` grows.
-- **Width variations are classes on `main`** that reset `--wp--style--global--content-size`.
+- **No template width lives in CSS.** Widths are native block settings on `main` and Post Content. → spec, "Templates"
 - **Modern CSS only when Baseline widely available.** See Mike's global rule.
 
 → spec, "CSS"
@@ -82,20 +87,23 @@ The token names are a contract: future patterns refer to them. Add freely. Renam
 
 ## PHP and the package
 
-- **The plumbing is `maithemewp/mai-theme-core`,** a Composer package loaded through `autoload.files`, namespace `Mai\Theme`. A client copy never renames it and never edits `vendor/`. → spec, "PHP"
+- **The plumbing is `maithemewp/mai-theme-core`,** a Composer package loaded through `autoload.files`, namespace `Mai\Theme\Core`. A client copy never renames it and never edits `vendor/`. → spec, "PHP"
 - **No helpers and no config API.** Plain hooks calling core.
 - **Named functions, hooked with `__NAMESPACE__ . '\name'`,** never closures, so a site can `remove_action()`.
 - **`declare( strict_types=1 );`** in every PHP file, PHP 8.4, WordPress spacing inside parentheses.
 - **`inc/` is the site's own PHP.** Client features still belong in the client's own plugin.
-- **Code in `inc/` uses the client's own namespace, never `Mai\Theme`,** which belongs to `mai-theme-core`. A function there with the same name as one in the package, now or in a later release, is a fatal error.
+- **Code in `inc/` uses the client's own namespace,** never `Mai\Theme\Core`, which is the package's, or `Mai\Theme`, which is `functions.php`'s. A function there with the same name as one in either, now or in a later release, is a fatal error.
 - **Required plugins** are Mai Content Areas and Mai Columns, installed by `afragen/wp-dependency-installer` from the package's config. The theme never bundles the engine. → spec, "Dependencies"
+- **The login page comes from the package.** A theme changes it with `theme.json` tokens, then an optional `assets/css/login.css` with the `--mai-login-*` variables, then `remove_action()` on the package's named functions. → spec, "PHP"
 - **Releases:** no tags and no pushes without Mike's yes. The theme commits `vendor/` once the package ships from GitHub. → spec, "PHP"
 
 ## Templates and slots
 
 - **Standard templates:** `index`, `home`, `front-page`, `page`, `single`, `archive`, `search`, `404`. Each is header part, `<main>` as a constrained group, then footer part.
-- **Custom templates:** Blank, Canvas, Wide, Narrow, With sidebar. There is no "Standard". → spec, "Templates"
-- **Parts:** header, footer, mobile menu, sidebar, and one shared entry part used by page, single, Wide, Narrow, and With sidebar.
+- **Custom templates, limited by post type** with `postTypes` in `theme.json`. Posts: "Post with sidebar". Pages: Wide, Narrow, "Page with sidebar", Blank, and Canvas. There is no "Standard". → spec, "Templates"
+- **Widths:** `main`'s Content width sets the template's width, and Post Content sits directly in the template, full-aligned with the same width. Narrow is 600px, Wide and the post lists 1200px, everything else the 740px default. The sidebar templates keep `main` at the wide size and Post Content not full-aligned. → spec, "Templates"
+- **Parts:** header, footer, mobile menu, sidebar, posts grid, and the entry split around Post Content: `entry-header` for posts, `page-header` for pages, and `entry-footer` for both. Each wraps its blocks in one group so they get block spacing.
+- **Post lists** share the `posts-grid` part. Its Query Loop's design changes with "Change design", using patterns marked `Block Types: core/query` and `Inserter: yes`. → spec, "Templates"
 - **Every Mai Slots location gets a Slot block wherever it applies,** locked with `"lock":{"remove":true}`. Canvas has none. The list per template is in the spec. → spec, "Slot blocks in each template"
 - **Layout patterns** for swapping a whole template are hidden, list each template slug in `Template Types:`, and are `Inserter: false` when they hold Slot blocks. → spec, "Templates"
 - **Templates are plain HTML,** not one-line pattern references.
@@ -104,12 +112,14 @@ The token names are a contract: future patterns refer to them. Add freely. Renam
 ## Naming
 
 - **Theme slug and text domain:** the same, and the folder name. The starter is `mai-theme`, not `mai`, because `mai` is in every `mai/` block and location id. → spec, "The repo"
-- **A client copy is renamed by editing `style.css` and its folder name only.** Never by search and replace: that would also rewrite `maithemewp/mai-theme-core` in `composer.json`.
-- **Hooks:** `mai_theme_` and underscores.
+- **A client copy is renamed through its folder, the `style.css` header, and `name` in `composer.json`.** Never by search and replace: that would also rewrite `maithemewp/mai-theme-core` in `composer.json` and the `mai/` names in every template.
+- **`mai-theme` names the theme and its package. `mai` names what the theme does.** → spec, "The repo"
+- **Hooks:** `mai_` and underscores, as in `mai_dependencies`.
+- **Stylesheet handles:** `mai`, and `mai-<namespace>-<block>` for block CSS. **CSS variables:** `--mai-`.
 - **Block bindings and blocks:** the `mai/` namespace, as in `mai/current-year`.
-- **Pattern slugs:** `mai-theme/` plus a hyphenated name.
+- **Pattern slugs:** `mai/` plus a hyphenated name, as in `mai/posts-grid`.
 - **Block style slugs:** hyphenated. `altheading` is the one exception.
-- **Template and part slugs:** hyphenated, as in `with-sidebar` and `mobile-menu`.
+- **Template and part slugs:** hyphenated, as in `with-sidebar-post` and `mobile-menu`. Never starting with `page-` or `single-`, which are WordPress's own template names.
 
 ## Docs and tests
 

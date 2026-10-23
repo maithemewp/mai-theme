@@ -11,7 +11,7 @@ A block theme starter for sites built on Mai Content Areas. Every Mai Slots loca
 - **PHP 8.4.** The Mai Slots engine requires it.
 - **WordPress 7.0.** The mobile menu uses the navigation overlay part area that 7.0 added.
 - **Mai Content Areas.** It carries the Mai Slots engine. Without it, Slot blocks render nothing on the front end, and the Site Editor shows a "doesn't include support" box in each slot's place.
-- **Mai Columns.** It builds the header, the post navigation, and the With sidebar layout.
+- **Mai Columns.** It builds the header, the footer's columns, the post navigation, both sidebar templates, and the Archive and List post designs.
 - **Composer,** to install the theme's plumbing package.
 
 ## The required plugins
@@ -24,16 +24,24 @@ The theme installs Mai Content Areas and Mai Columns for you, through `afragen/w
 - **It downloads a branch, not a release.** Whatever is committed on `main` is what installs.
 - **Front-end requests skip it.** Visitors never pay for it.
 
-To add, change, or remove a required plugin, use the `mai_theme_dependencies` filter in the site's own `inc/` folder.
+To add, change, or remove a required plugin, use the `mai_dependencies` filter in the site's own `inc/` folder.
 
 ## What is in the box
 
-- **Eight standard templates:** `index`, `home`, `front-page`, `page`, `single`, `archive`, `search`, and `404`.
-- **Five custom templates,** offered on posts and pages: Blank, Canvas, Wide, Narrow, and With sidebar. Blank and Canvas show the content only, with no post navigation or comments, by design.
-- **Six template parts:** header, footer, mobile menu, sidebar, entry, and posts grid.
-- **Two layout patterns,** for swapping a whole template in the Site Editor: "Post: With sidebar" and "Archive: List".
+- **Eight standard templates:** `index`, `home`, `front-page`, `page`, `single`, `archive`, `search`, and `404`. `single` is the default for posts and custom post types, and `page` is the default for pages.
+- **Custom templates, by post type:**
+  - **Posts:** "Post with sidebar" (`with-sidebar-post`).
+  - **Pages:** Wide, Narrow, "Page with sidebar" (`with-sidebar-page`), Blank, and Canvas.
+- **Eight template parts:** header, footer, mobile menu, sidebar, entry header, page header, entry footer, and posts grid.
+- **One layout pattern,** "Post: With sidebar", for swapping the Single Posts template in the Site Editor's Design panel.
+- **Three post designs** for the Query Loop: "Posts: Grid", "Posts: Archive", and "Posts: List".
 - **One block style:** Alt Heading, on Heading and Paragraph blocks.
 - **Figtree,** self-hosted, as both the body and heading font.
+- **A login page in the theme's look,** from the plumbing package.
+
+**Posts and pages get different blocks.** Posts show a meta row (date, author, and category), post navigation, and comments. Pages show none of those. The entry header part is for posts and the page header part is for pages, and both share the entry footer part. Wide, Narrow, Blank, and Canvas are offered on pages only, so they carry no post navigation or comments.
+
+**Each template sets its own width** with the native Content width setting on `main` and on Post Content. Pages and posts are 740px, Narrow is 600px, and Wide and the four post lists are 1200px. Both sidebar templates are 1200px, with the content column beside a 300px sidebar.
 
 Every Slot block in the templates is locked against removal. Deleting one silently stops every content area aimed at it. Moving one is fine.
 
@@ -41,9 +49,9 @@ The "Blog" heading on the posts page is fixed text in `templates/home.html`, so 
 
 ## Start a client site
 
-Do this once per client. Rename a client copy only by editing `style.css` and naming its folder. A search and replace across the files would also rewrite `maithemewp/mai-theme-core` in `composer.json`.
+Do this once per client. A client copy is renamed in three places: its folder, the `style.css` header, and `name` in `composer.json`. Never rename it by search and replace. That would also rewrite `maithemewp/mai-theme-core` in `composer.json` and the `mai/` names in every template.
 
-**Warning:** Do not rename the `maithemewp/mai-theme-core` package, the `Mai\Theme` namespace, or the `mai-theme-` handles. The package never reads the theme's slug.
+**Warning:** Do not rename the `maithemewp/mai-theme-core` package, the `Mai\Theme\Core` and `Mai\Theme` namespaces, the `mai` handles, or the `mai/` names. The package never reads the theme's slug.
 
 1. Copy the starter to a new folder named for the client.
 
@@ -104,17 +112,17 @@ The menu choice saves to the database, not to the theme's files. Leave it there:
 
 ## Give every single post the sidebar
 
-Two ways to do it. The result is the same layout: the entry, post navigation, and comments next to the sidebar part.
+One post can get the sidebar from the post's own **Template** setting: choose "Post with sidebar". To give it to every post, use one of the two ways below. The result is the same layout: the entry, post navigation, and comments next to the sidebar part.
 
 ### In code
 
 **Warning:** This overwrites `templates/single.html`. Commit your work first.
 
 1. Open a terminal in the theme folder.
-2. Copy the With sidebar template over the single template.
+2. Copy the "Post with sidebar" template over the single template.
 
    ```sh
-   cp templates/with-sidebar.html templates/single.html
+   cp templates/with-sidebar-post.html templates/single.html
    ```
 
 3. Review the change.
@@ -137,6 +145,49 @@ This saves to the database, not to a file. Save it back to the theme with Create
 6. Find the **Design** panel.
 7. Click **Post: With sidebar**.
 8. Click **Save**.
+
+## Change the design of every post list
+
+The blog, archive, and search templates all show their posts through the **Posts grid** template part. Its Query Loop holds the "Posts: Grid" design. Change the design there once, and every post list on the site follows. No template heading changes.
+
+- **Posts: Grid** shows three columns of cards, each with an image, title, date, and short excerpt.
+- **Posts: Archive** shows one post per row, with a 300px image beside the title, date, and excerpt.
+- **Posts: List** shows a small square thumbnail beside each title. It suits sidebars and "Favorite posts" sections.
+
+This saves to the database, not to a file. Save it back to the theme with Create Block Theme if the change must travel with the code.
+
+**Warning:** The next steps change every post list on the site, not one page.
+
+1. Go to **Appearance > Editor**.
+2. Click **Patterns**.
+3. Click **All template parts**.
+4. Click **Posts grid**.
+5. Open the **List View**.
+6. Select the **Query Loop** block.
+7. Click **Change design** in the block toolbar.
+8. Click **Posts: Archive** or **Posts: List**.
+9. Click **Save**.
+
+The new design keeps two settings from the old one: the post type, and whether the list follows the page's own query. So each list still shows the right posts. Every other Query Loop setting comes from the new design, so set any other change again afterwards.
+
+**On a page, "Posts: Grid" needs one more setting.** It matches the Posts grid part, so it follows the page's own query. Core then warns that a page cannot inherit the template's query. Set the Query Loop's **Query type** to **Custom**. "Posts: Archive" and "Posts: List" already carry their own query.
+
+## Customise the login page
+
+The plumbing package puts the login page in the theme's look: the site logo, or the Site Title when there is no logo, above a card that holds the form. Change it in three layers, from smallest to largest.
+
+- **`theme.json` tokens.** The page uses the palette, the fonts, the `default` radius, the `primary` shadow, and the button style. A client's colours and fonts reach the login page with no other change.
+- **The theme's own `assets/css/login.css`.** Create this file in the theme, and the login page loads it after the package's styles. Three variables cover the common changes: `--mai-login-background`, `--mai-login-card-background`, and `--mai-login-logo-height`. Any other rule there wins too.
+- **The package's hooks.** Each one is a named function in `Mai\Theme\Core`, such as `enqueue_login_styles` on `login_enqueue_scripts`, so a site can remove it from its own `inc/` folder with `remove_action()` or `remove_filter()`.
+
+An example `assets/css/login.css`:
+
+```css
+:root {
+	--mai-login-background: var(--wp--preset--color--base-3);
+	--mai-login-logo-height: 64px;
+}
+```
 
 ## Bring starter fixes into a client site
 
@@ -206,7 +257,7 @@ php ~/LocalPackages/mai-theme-core/tests/run.php
 - **`STATE.md`** says where the work stands now.
 - **`TODO.md`** lists what is open.
 - **`CHANGES.md`** is the changelog.
-- **`docs/`** holds the spec, the build plan, and the draft of the `mai-theme-scaffold` skill.
+- **`docs/`** holds the spec, the build plans, and the draft of the `mai-theme-scaffold` skill.
 
 ## License
 
