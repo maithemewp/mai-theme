@@ -149,6 +149,8 @@ echo wp_json_encode(
 			// A post, so the blog home, its category archive, and a search for
 			// "Editor" each list at least one, and the grid has a card to lay out.
 			'post'    => $make( 'Editor post with sidebar', 'with-sidebar-post', 'post' ),
+			// A post on the default template, single.html.
+			'single'  => $make( 'Editor post', '', 'post' ),
 		],
 	]
 );

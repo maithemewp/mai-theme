@@ -214,7 +214,8 @@ $made = wp_cli_php(
 );
 
 $made = json_decode( $made, true, 512, JSON_THROW_ON_ERROR );
-$site = json_decode( wp_cli_php( 'echo wp_json_encode( [ "name" => get_bloginfo( "name" ), "home" => home_url( "/" ) ] );' ), true, 512, JSON_THROW_ON_ERROR );
+$site = json_decode( wp_cli_php( 'echo wp_json_encode( [ "name" => get_bloginfo( "name" ), "home" => home_url( "/" ), "year" => wp_date( "Y" ) ] );' ), true, 512, JSON_THROW_ON_ERROR );
+$year = (string) $site['year'];
 
 foreach ( [ 'mai-theme', 'acme' ] as $theme ) {
 	echo "\nWith $theme active\n";
@@ -224,6 +225,22 @@ foreach ( [ 'mai-theme', 'acme' ] as $theme ) {
 	$page = fetch( '' );
 	$html = $page['body'];
 	check( 'home page returns 200', $page['status'], 200 );
+
+	// The year's saved text is "Year", never a year, so only the binding can
+	// put this year there. The footer has no Navigation block on purpose: one
+	// with no menu chosen shows the most recently published menu, whichever
+	// that is.
+	$footer = \Dom\HTMLDocument::createFromString( $html, LIBXML_NOERROR )->querySelector( 'footer' );
+	$text   = (string) $footer?->textContent;
+	check( 'the page has a <footer>', null !== $footer );
+	check( "the footer's copyright shows this year, through the binding", str_contains( $text, $year ) );
+	check( 'and not the saved text, Year', str_contains( $text, 'Year' ), false );
+	check( 'the footer holds no Navigation block', $footer?->querySelector( '.wp-block-navigation' ), null );
+	check(
+		'the footer shows the Site Title in its first column and its copyright',
+		array_map( static fn( \Dom\Element $title ): string => trim( (string) $title->textContent ), $footer ? iterator_to_array( $footer->querySelectorAll( '.wp-block-site-title' ) ) : [] ),
+		[ $site['name'], $site['name'] ]
+	);
 
 	$folder = BASE_URL . '/wp-content/themes/' . $theme . '/';
 

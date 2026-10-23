@@ -83,15 +83,22 @@ run_tests() {
 	# either. `mai-theme` names only the theme and its package, never what the
 	# theme does, so `mai-theme-` and `mai-theme/` are allowed only in
 	# `mai-theme-core` and `mai-theme-scaffold`.
-	local stray
+	#
+	# grep exits 1 when nothing matches, which is the pass, and 2 when it
+	# cannot read a path. A folder that is missing or renamed would otherwise
+	# pass by being skipped, so that fails the check, with grep's own message.
+	local stray found=0
 	stray="$(
 		cd "$THEME_DIR" &&
-		grep -rnoE 'maiSlotsRules|mai-theme[-/][a-z0-9-]*' templates parts patterns style.css assets/css functions.php inc 2> /dev/null |
-		grep -vE ':mai-theme-(core|scaffold)$' || true
-	)"
+		grep -rnoE 'maiSlotsRules|mai-theme[-/][a-z0-9-]*' templates parts patterns styles theme.json style.css assets/css functions.php inc
+	)" || found=$?
+	stray="$( printf '%s' "$stray" | grep -vE ':mai-theme-(core|scaffold)$' || true )"
 
-	if [ -n "$stray" ]; then
-		echo "Names the theme must not carry, in its templates, parts, patterns, CSS, or PHP:"
+	if [ "$found" -gt 1 ]; then
+		echo "The name check could not read every path it scans (grep exited $found). Check the list in tests/setup.sh against the theme's folders."
+		failed=1
+	elif [ -n "$stray" ]; then
+		echo "Names the theme must not carry, in its templates, parts, patterns, styles, theme.json, CSS, or PHP:"
 		echo "$stray"
 		failed=1
 	else

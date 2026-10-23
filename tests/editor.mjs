@@ -12,11 +12,14 @@
  *   new slot needs no edit here.
  * - The Post: With sidebar layout pattern is offered for Single Posts, and
  *   parses to valid blocks only.
+ * - The three post designs parse to valid blocks only, and "Change design" on
+ *   the posts-grid part's Query Loop offers all three.
  * - Alt Heading is in the Heading block's style list.
- * - At 1440px wide, content is 740px on a page, 1200px on Wide, and 600px on
- *   Narrow, with Narrow's wide blocks at 740px. A full group spans the
- *   window. The lists of posts are 1200px. In both sidebar templates, Post
- *   Content sits in its column with no stray padding and nothing poking out.
+ * - At 1440px wide, content is 740px on a page and a single post, 1200px on
+ *   Wide, and 600px on Narrow, with Narrow's wide blocks at 740px. A full
+ *   group spans the window. The lists of posts are 1200px. In both sidebar
+ *   templates, the content column is 836px, and Post Content sits in it with
+ *   no stray padding and nothing poking out.
  * - Each starter block stylesheet loads where its block is, and only there,
  *   and does what it is for: the search field's border, the open menu's
  *   colours, and the Post Template gap from theme.json.
@@ -155,6 +158,11 @@ try {
 	check( 'page: a wide group in content is 1200px', page.wide?.width, 1200 );
 	check( 'page: a full group in content spans the window', spans( page ), true );
 
+	// single.html, through a post on the default template.
+	const single = await measure( `p=${ site.pages.single }` );
+	check( 'single post: the title is 740px', single.title?.width, 740 );
+	check( 'single post: a paragraph in content is 740px', single.paragraph?.width, 740 );
+
 	const wide = await measure( site.pages.wide );
 	check( 'Wide: the title is 1200px', wide.title?.width, 1200 );
 	check( 'Wide: a paragraph in content is 1200px', wide.paragraph?.width, 1200 );
@@ -200,11 +208,15 @@ try {
 			} ).map( ( el ) => el.className || el.tagName );
 
 			return {
+				width: Math.round( edge.width ),
 				content: inset( content ),
 				paragraph: inset( content.querySelector( '.mai-test-paragraph' ) ),
 				outside: [ ...new Set( outside ) ],
 			};
 		} );
+		// main's 1200px, less the 300px sidebar and the spacing 60 gap, which is
+		// 64px at this width. A main falling back to 740px leaves 376px.
+		check( `${ label }: the content column is 836px`, column?.width, 836 );
 		check( `${ label }: Post Content fills its column, edge to edge`, column?.content, [ 0, 0 ] );
 		check( 'and so does its paragraph', column?.paragraph, [ 0, 0 ] );
 		check( 'and nothing in the column reaches outside it', column?.outside, [] );
@@ -374,9 +386,10 @@ try {
 	check( 'Post: With sidebar is offered for Single Posts', offered( 'mai/layout-post-with-sidebar', 'single' ) );
 
 	// A pattern never opens as a template, so the loop above never sees its
-	// markup. This parses it as the Design panel does when it applies one, and
-	// walks every block, nested ones included.
-	const layouts = [ [ 'mai/layout-post-with-sidebar', 'Post: With sidebar' ] ];
+	// markup. This parses each one as the editor does when it inserts or
+	// applies one, and walks every block, nested ones included.
+	const DESIGNS = [ [ 'mai/posts-grid', 'Posts: Grid' ], [ 'mai/posts-archive', 'Posts: Archive' ], [ 'mai/posts-list', 'Posts: List' ] ];
+	const shipped = [ [ 'mai/layout-post-with-sidebar', 'Post: With sidebar' ], ...DESIGNS ];
 	const parsed = await editor.evaluate( async ( names ) => {
 		const all = await wp.data.resolveSelect( 'core' ).getBlockPatterns();
 		const count = ( blocks ) => blocks.reduce( ( n, b ) => n + 1 + count( b.innerBlocks ), 0 );
@@ -387,20 +400,49 @@ try {
 		} );
 
 		return Object.fromEntries( names.map( ( name ) => {
-			const blocks = wp.blocks.parse( all.find( ( p ) => p.name === name )?.content ?? '' );
+			const pattern = all.find( ( p ) => p.name === name );
+			const blocks = wp.blocks.parse( pattern?.content ?? '' );
 
-			return [ name, { blocks: count( blocks ), invalid: invalid( blocks, [] ) } ];
+			return [ name, { registered: undefined !== pattern, blocks: count( blocks ), invalid: invalid( blocks, [] ) } ];
 		} ) );
-	}, layouts.map( ( [ name ] ) => name ) );
+	}, shipped.map( ( [ name ] ) => name ) );
 
-	for ( const [ name, label ] of layouts ) {
+	for ( const [ name, label ] of shipped ) {
 		// Openers in the file itself. A template part's blocks are not in the
 		// pattern's markup, so the parts it names are not counted.
-		const want = ( readFileSync( `${ THEME }/patterns/${ name.split( '/' )[ 1 ] }.php`, 'utf8' ).match( /<!-- wp:[a-z]/g ) ?? [] ).length;
+		const file = `${ THEME }/patterns/${ name.split( '/' )[ 1 ] }.php`;
+		const want = existsSync( file ) ? ( readFileSync( file, 'utf8' ).match( /<!-- wp:[a-z]/g ) ?? [] ).length : 0;
 
+		check( `${ label } is registered as ${ name }`, parsed[ name ].registered );
 		check( `${ label } parses to its ${ want } blocks`, parsed[ name ].blocks, want );
 		check( `${ label } holds no invalid blocks`, parsed[ name ].invalid, [] );
 	}
+
+	// "Change design" on a Query Loop's toolbar lists what core's PatternPicker
+	// gets: patterns for core/query that the inserter allows, whose first
+	// block is a Query Loop (useBlockPatterns in block-library.js). Asked of
+	// the Query Loop in the posts-grid part, where every list on the site
+	// gets its design. A pattern marked Inserter: no would be missing here.
+	await editor.goto( `${ BASE }/wp-admin/site-editor.php?p=${ encodeURIComponent( '/wp_template_part/mai-theme//posts-grid' ) }&canvas=edit` );
+	check( 'the posts-grid part opens in the editor and its blocks settle', ( await settle( 'mai-theme//posts-grid' ) ).settled );
+
+	const designs = DESIGNS.map( ( [ name ] ) => name );
+	const changeDesign = () => {
+		const store = window.wp?.data?.select( 'core/block-editor' );
+		const [ query ] = store?.getBlocksByName( 'core/query' ) ?? [];
+
+		return query
+			? store.getPatternsByBlockTypes( 'core/query', store.getBlockRootClientId( query ) ).filter( ( p ) => 'core/query' === p.blocks?.[ 0 ]?.name ).map( ( p ) => p.name )
+			: [];
+	};
+
+	// The theme's patterns arrive from the REST API after the blocks do, so
+	// wait for them, and on a timeout report what was there.
+	await editor.evaluate( `window.maiChangeDesign = ${ changeDesign };` );
+	await editor.waitForFunction( ( want ) => want.every( ( name ) => window.maiChangeDesign().includes( name ) ), designs, { timeout: 20000 } ).catch( () => {} );
+
+	const inPicker = await editor.evaluate( () => window.maiChangeDesign() );
+	check( 'Change design on the Query Loop offers Posts: Grid, Posts: Archive, and Posts: List', designs.filter( ( name ) => inPicker.includes( name ) ), designs );
 
 	check( 'Alt Heading is in the Heading block\'s styles', await editor.evaluate( () => wp.data.select( 'core/blocks' ).getBlockStyles( 'core/heading' ).map( ( s ) => s.name ).includes( 'altheading' ) ) );
 

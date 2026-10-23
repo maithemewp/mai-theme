@@ -275,11 +275,6 @@ check( 'the header menu is labelled Main', str_contains( $single, 'aria-label="M
 // The Mobile menu part renders inside the header menu's <nav>, so a <nav> of
 // its own would be a landmark inside a landmark.
 check( 'the mobile menu adds no <nav> inside the header menu', \Dom\HTMLDocument::createFromString( $single, LIBXML_NOERROR )->querySelector( 'header nav nav' ), null );
-// The footer has no Navigation block on purpose. One with no menu chosen
-// shows the most recently published menu, whichever that is.
-$footer = \Dom\HTMLDocument::createFromString( $single, LIBXML_NOERROR )->querySelector( 'footer' );
-check( 'the footer holds no menu', null !== $footer && null === $footer->querySelector( '.wp-block-navigation' ) );
-check( "the footer's copyright shows this year, through the binding", null !== $footer && str_contains( (string) $footer->textContent, trim( wp_cli_php( 'echo wp_date( "Y" );' ) ) ) );
 check( 'the sidebar renders in an <aside> element', str_contains( $results['Page with sidebar']['body'], '<aside class="wp-block-template-part"' ) );
 
 check( 'the Canvas page has no <header> element', str_contains( $results['Canvas page']['body'], '<header' ), false );
@@ -376,6 +371,17 @@ check(
 	'and prints templates/with-sidebar-post.html exactly',
 	substr( $pattern, (int) strpos( $pattern, "?>\n" ) + 3 ),
 	is_file( $sidebar_file ) ? (string) file_get_contents( $sidebar_file ) : 'no such file'
+);
+
+// The posts-grid part is the Posts: Grid design, so what the lists show and
+// what "Change design" offers to switch back to cannot drift apart.
+$grid_file = dirname( __DIR__ ) . '/patterns/posts-grid.php';
+$grid      = is_file( $grid_file ) ? (string) file_get_contents( $grid_file ) : '';
+check( 'the Posts: Grid pattern is named mai/posts-grid', 1 === preg_match( '~^ \* Slug: mai/posts-grid$~m', $grid ) );
+check(
+	'and parts/posts-grid.html is exactly what it prints',
+	(string) file_get_contents( dirname( __DIR__ ) . '/parts/posts-grid.html' ),
+	str_contains( $grid, "?>\n" ) ? substr( $grid, (int) strpos( $grid, "?>\n" ) + 3 ) : 'no such pattern'
 );
 
 foreach ( [ CONTENT_AREAS => 'Mai Content Areas', COLUMNS => 'Mai Columns' ] as $plugin => $name ) {
