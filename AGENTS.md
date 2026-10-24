@@ -28,7 +28,7 @@ Invariants only. Each rule links to where its argument lives. If you are about t
 - **Every starter Slot block is locked against removal, not movement:** `"lock":{"remove":true}`. → spec, "Slot blocks in each template"
 - **Slot blocks sit in the template, outside the parts,** except the entry and sidebar slots, which sit in their own parts. → spec, "Slot blocks in each template"
 - **A layout pattern holding Slot blocks is `Inserter: false`.** Otherwise WordPress offers it in posts. → spec, "Templates"
-- **A pattern body equals the file it copies.** `patterns/layout-post-with-sidebar.php` matches `templates/with-sidebar-post.html`, and `patterns/posts-grid.php` matches `parts/posts-grid.html`. `tests/slots.php` fails when either pair differs.
+- **A pattern body equals the file it copies.** `patterns/layout-post-with-sidebar.php` matches `templates/with-sidebar-post.html`. `patterns/posts-grid.php` matches `parts/posts-grid.html` in everything but its query: the part follows the page, and the pattern lists the latest 9 posts, so it works on any page. `tests/slots.php` fails when either pair differs. → spec, "Templates"
 - **Post designs for the Query Loop are `Block Types: core/query` and `Inserter: yes`.** `Inserter: no` hides a pattern from "Change design". → spec, "Templates"
 - **Layout patterns list every template slug by name** in `Template Types:`. The Design panel matches exact slugs. → spec, "Templates"
 - **There is no "Standard" template.** The default template is the standard width. → spec, "Templates"

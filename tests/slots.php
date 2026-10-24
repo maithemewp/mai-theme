@@ -373,16 +373,47 @@ check(
 	is_file( $sidebar_file ) ? (string) file_get_contents( $sidebar_file ) : 'no such file'
 );
 
-// The posts-grid part is the Posts: Grid design, so what the lists show and
-// what "Change design" offers to switch back to cannot drift apart.
-$grid_file = dirname( __DIR__ ) . '/patterns/posts-grid.php';
-$grid      = is_file( $grid_file ) ? (string) file_get_contents( $grid_file ) : '';
+// The posts-grid part holds the Posts: Grid design, so what the lists show and
+// what "Change design" offers to switch back to cannot drift apart. Only the
+// query differs: the part follows the page, and the pattern lists the latest
+// posts wherever it is inserted.
+$grid_file  = dirname( __DIR__ ) . '/patterns/posts-grid.php';
+$grid       = is_file( $grid_file ) ? (string) file_get_contents( $grid_file ) : '';
+$grid_part  = (string) file_get_contents( dirname( __DIR__ ) . '/parts/posts-grid.html' );
+$printed    = str_contains( $grid, "?>\n" ) ? substr( $grid, (int) strpos( $grid, "?>\n" ) + 3 ) : 'no such pattern';
+$past_query = static fn( string $html ): string => substr( $html, (int) strpos( $html, "-->\n" ) + 4 );
+
 check( 'the Posts: Grid pattern is named mai/posts-grid', 1 === preg_match( '~^ \* Slug: mai/posts-grid$~m', $grid ) );
-check(
-	'and parts/posts-grid.html is exactly what it prints',
-	(string) file_get_contents( dirname( __DIR__ ) . '/parts/posts-grid.html' ),
-	str_contains( $grid, "?>\n" ) ? substr( $grid, (int) strpos( $grid, "?>\n" ) + 3 ) : 'no such pattern'
+check( 'and matches parts/posts-grid.html in everything but its query', $past_query( $printed ), $past_query( $grid_part ) );
+check( 'the posts-grid part follows the page\'s query', str_starts_with( $grid_part, '<!-- wp:query {"queryId":1,"query":{"inherit":true},' ) );
+
+// Inserted on an ordinary page, the pattern lists posts. Following the page's
+// query instead would list the page itself, as one card.
+$grid_page = (int) wp_cli_php(
+	'$id = wp_insert_post( [
+		"post_type"    => "page",
+		"post_status"  => "publish",
+		"post_title"   => "Slots grid page",
+		"post_content" => \WP_Block_Patterns_Registry::get_instance()->get_registered( "mai/posts-grid" )["content"] ?? "",
+		"meta_input"   => [ "_mai_theme_tests" => "slots" ],
+	], true );
+
+	if ( is_wp_error( $id ) ) {
+		fwrite( STDERR, $id->get_error_message() );
+		exit( 1 );
+	}
+
+	echo $id;'
 );
+
+$cards = array_map(
+	static fn( \Dom\Element $title ): string => trim( (string) $title->textContent ),
+	iterator_to_array( \Dom\HTMLDocument::createFromString( fetch( "page_id=$grid_page" )['body'], LIBXML_NOERROR )->querySelectorAll( 'main .wp-block-post-template .wp-block-post-title' ) )
+);
+
+check( 'Posts: Grid on a page shows several posts', count( $cards ) >= 2 );
+check( 'and they include the posts this script made', array_values( array_diff( [ 'Hello slots', 'Slots post with sidebar' ], $cards ) ), [] );
+check( 'and not the page itself', in_array( 'Slots grid page', $cards, true ), false );
 
 foreach ( [ CONTENT_AREAS => 'Mai Content Areas', COLUMNS => 'Mai Columns' ] as $plugin => $name ) {
 	echo "\nWith $name deactivated\n";

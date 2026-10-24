@@ -7,11 +7,9 @@
 - [ ] **Make Mai Content Areas public with an updater,** and `main` as the stable branch, the way Mai Columns ships. The installer needs it before the theme goes on a real site. Making the repo public needs his explicit go-ahead.
 - [ ] **Switch the path repositories to GitHub and commit `vendor/`.** That covers `mai-theme-core` here, and the engine packages in Mai Content Areas. Regenerate `composer.lock` after, because it pins the local path package today.
 - [ ] **Name the optional Mai plugins.** The spec lists optional plugins, such as Mai Performance Images and Mai Site Help, that the installer does not offer yet. It waits on Mike to name the list.
-- [ ] **Confirm the agent's calls from the review-changes build.** Each is marked "agent's call" in the spec, and each is a small change if he disagrees:
-  - **The sidebar template titles,** "Post with sidebar" and "Page with sidebar". One line each in `theme.json`.
-  - **"Posts: List" does not stack on phones.** Mai Columns switches on its container's width, so stacking would also stack it in every 300px sidebar.
-  - **"Posts: Grid" inserted on a page follows the page's own query,** so core warns that a page cannot inherit the template's query. It must equal the `posts-grid` part. The fix is a separate design for hub pages, or letting the part and the pattern differ.
+- [ ] **Revisit two settings after Mike's smoke test.** Each is a small change:
   - **The footer headings are h2 at the `medium` size.**
+  - **"Posts: List" stays side by side at 80px everywhere.** Mai Columns switches on its container's width, so stacking it on phones would also stack it in every 300px sidebar.
 
 ## Parked by the spec
 
@@ -33,7 +31,7 @@ See the spec, "Later: not in the starter".
 **In this theme:**
 - [ ] **Gate the missing-vendor notice.** It shows to every admin. Show it only to someone who can switch themes.
 - [ ] **Match the text domain of the missing-vendor notice and the package's `src/admin.php`** to the client's, or leave it as `mai-theme` on purpose and say so.
-- [ ] **Stop hard-coding `queryId` 1** in `parts/posts-grid.html` and `patterns/posts-grid.php`. "Posts: Archive" and "Posts: List" already carry none.
+- [ ] **Stop hard-coding `queryId` 1** in `parts/posts-grid.html`. The three post designs already carry none.
 - [ ] **Scope `search.css` to the field wrapper.** It rounds the input inside a button-inside wrapper as well as the wrapper.
 - [ ] **Keep `docs/specs` and `docs/plans` in a fresh client copy.** The "Start a client site" procedure empties them, and they have no `.gitkeep`.
 

@@ -170,7 +170,7 @@ This saves to the database, not to a file. Save it back to the theme with Create
 
 The new design keeps two settings from the old one: the post type, and whether the list follows the page's own query. So each list still shows the right posts. Every other Query Loop setting comes from the new design, so set any other change again afterwards.
 
-**On a page, "Posts: Grid" needs one more setting.** It matches the Posts grid part, so it follows the page's own query. Core then warns that a page cannot inherit the template's query. Set the Query Loop's **Query type** to **Custom**. "Posts: Archive" and "Posts: List" already carry their own query.
+**On a page, each design lists the latest posts with no extra setting.** "Posts: Grid" shows 9, "Posts: Archive" shows 10, and "Posts: List" shows 5.
 
 ## Customise the login page
 
