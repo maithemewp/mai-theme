@@ -72,8 +72,8 @@ Invariants only. Each rule links to where its argument lives. If you are about t
 
 ## Git
 
-- **Never push, tag, or cut a release without Mike's yes.** The first push turns `v3` into `main` and moves v1 to a `v1` branch.
-- **Pushing needs a switch first:** the path repositories move to GitHub (this theme's `mai-theme-core`, and the engine packages in Mai Content Areas), and `vendor/` is committed. → `TODO.md`
+- **Never push, tag, or cut a release without Mike's yes.** `main` is v3, the default branch since 2026-10-25. v1 lives on the `v1` branch.
+- **A real site needs a switch first:** the path repositories move to GitHub (this theme's `mai-theme-core`, and the engine packages in Mai Content Areas), and `vendor/` is committed. Until then a fresh clone of `main` cannot run `composer install`. → `TODO.md`
 
 ## Testing
 
