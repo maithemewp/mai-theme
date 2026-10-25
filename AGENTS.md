@@ -2,7 +2,7 @@
 
 ## House conventions live in a skill
 
-How Mike builds block themes (repo shape, token names, CSS, block CSS, block styles, PHP, templates, naming) is written down in the `mai-theme-scaffold` skill. It is a draft at `docs/plans/mai-theme-scaffold/SKILL.md` until Mike reviews it and it moves to `~/.agents/skills`. Do not copy it there yourself.
+How Mike builds block themes (repo shape, token names, CSS, block CSS, block styles, PHP, templates, naming) is in the `mai-theme-scaffold` skill, at `~/.agents/skills/mai-theme-scaffold/SKILL.md`. Read it before changing anything here. This file holds only the rules for this repo.
 
 **Any change to a house convention in this repo updates the skill in the same session.** The skill names this theme as the reference. When the two disagree, read the theme and tell Mike.
 
@@ -20,55 +20,16 @@ Invariants only. Each rule links to where its argument lives. If you are about t
 
 ## House rules
 
-- **The starter never relies on Mai Slots rules for base content.** No block in the starter's markup carries a "Show when" rule (`maiSlotsRules`). Where posts and pages need different blocks, they get different parts or templates, as `entry-header` and `page-header` do. `tests/run.sh` fails when `maiSlotsRules` appears. → spec, "Conventions"
-- **A value is set once, in `theme.json`.** A block in a template, part, or pattern carries a style setting only when it really differs from `theme.json`. A width equal to a `theme.json` size uses its variable, `var(--wp--style--global--content-size)` or `var(--wp--style--global--wide-size)`. → spec, "Conventions" and "theme.json"
+These two are also in the skill, on purpose. → spec, "Conventions"
 
-## Templates and slots
+- **The starter never relies on Mai Slots rules for base content.** No block in the starter's markup carries a "Show when" rule (`maiSlotsRules`). Where posts and pages need different blocks, they get different parts or templates, as `entry-header` and `page-header` do.
+- **A value is set once, in `theme.json`.** A block in a template, part, or pattern carries a style setting only when it really differs from `theme.json`.
 
-- **Every starter Slot block is locked against removal, not movement:** `"lock":{"remove":true}`. → spec, "Slot blocks in each template"
-- **Slot blocks sit in the template, outside the parts,** except the entry and sidebar slots, which sit in their own parts. → spec, "Slot blocks in each template"
-- **A layout pattern holding Slot blocks is `Inserter: false`.** Otherwise WordPress offers it in posts. → spec, "Templates"
+## This repo
+
 - **A pattern body equals the file it copies.** `patterns/layout-post-with-sidebar.php` matches `templates/with-sidebar-post.html`. `patterns/posts-grid.php` matches `parts/posts-grid.html` in everything but its query: the part follows the page, and the pattern lists the latest 9 posts, so it works on any page. `tests/slots.php` fails when either pair differs. → spec, "Templates"
-- **Post designs for the Query Loop are `Block Types: core/query` and `Inserter: yes`.** `Inserter: no` hides a pattern from "Change design". → spec, "Templates"
-- **Layout patterns list every template slug by name** in `Template Types:`. The Design panel matches exact slugs. → spec, "Templates"
-- **There is no "Standard" template.** The default template is the standard width. → spec, "Templates"
-- **Widths are native block settings, never a class.** `main` and Post Content carry the template's Content width. In the sidebar templates, `main` is at the wide size and Post Content is not full-aligned. → spec, "Templates"
-- **Custom templates are limited by post type** with `postTypes` in `theme.json`. A post is never offered a page template, and a page is never offered a post template. `tests/slots.php` checks both. → spec, "Templates"
-- **The sidebar template slugs never start with `page-` or `single-`.** Those are WordPress's own template names. → spec, "Templates"
-
-## Tokens
-
-- **The token names are a contract.** Palette, font sizes, spacing `10` to `80`, `body` and `heading`, the two shadows, the radius sizes, and the line-height scale. Patterns will refer to them. Add freely, rename or remove only with Mike. → spec, "Later: a pattern library"
-- **`theme.json` uses the shorthand,** `var:preset|color|primary` and `var:custom|line-height|normal`. The long `var(--wp--preset--…)` form is only for CSS strings.
-- **Core's default presets stay off,** removed at the source by `mai-theme-core`. Never turn a default back on. → spec, "theme.json"
-- **Names say a role or a size, never a look.** → spec, "Anti-goals"
-
-## Block styles
-
-- **`altheading` is a deliberate exception to hyphenated slugs.** Three v2 sites already use `is-style-altheading`. Every block style file needs an explicit `slug` and at least one style property. → spec, "Block styles"
-
-## PHP
-
-- **`inc/` is the site's own PHP.** It is empty in the starter. `functions.php` loads the autoloader and then `inc/*.php`, nothing else.
-- **Never edit `vendor/`.** The plumbing is the `maithemewp/mai-theme-core` package. Fix it in `~/LocalPackages/mai-theme-core`, then `composer update`. → spec, "PHP"
-- **The package is never renamed,** in a client copy or anywhere. It keeps `Mai\Theme\Core` and its `mai` handles.
-- **Named functions, never closures,** so a site can `remove_action()` them.
-- **`functions.php` uses `Mai\Theme`.** The package uses `Mai\Theme\Core`, so the two cannot clash. → spec, "PHP"
-- **Code in `inc/` uses the client's own namespace,** never `Mai\Theme\Core` or `Mai\Theme`. A function with the same name as one in either, now or in a later release, is a fatal error.
-
-## Code
-
-- PHP 8.4. `declare( strict_types=1 );` in every PHP file.
-- **`mai-theme` names this theme and its package. `mai` names what the theme does.** Hooks start `mai_`, as in `mai_dependencies`. Stylesheet handles are `mai` and `mai-<namespace>-<block>`. CSS variables start `--mai-`. Pattern slugs, bindings, and blocks use `mai/`. `tests/run.sh` fails on any other `mai-theme-` name in the theme's code. → spec, "The repo"
-- **Per-block CSS** goes in `assets/css/blocks/<namespace>/<block>.css`. **Block styles** go in `styles/blocks/<block>/`. → spec, "CSS"
-- **`style.css` holds only what `theme.json` cannot say.**
-- Comments explain why, not what.
-
-## Writing
-
-- No em-dashes in any Markdown file or user-facing string, and no double hyphen used as one.
-- Soft-wrap prose: one line per paragraph.
-- README procedures follow ASD-STE100: numbered, one imperative instruction per step, under 20 words, commands in code blocks, warnings before the step they guard.
+- **`tests/run.sh` fails on `maiSlotsRules` or a stray `mai-theme-` name** in templates, parts, patterns, styles, CSS, PHP, or `theme.json`. Only `mai-theme-core` and `mai-theme-scaffold` are allowed. → spec, "The repo"
+- **Fix the plumbing in `~/LocalPackages/mai-theme-core`,** never in `vendor/`, then run `composer update` here. → spec, "PHP"
 
 ## Git
 
@@ -80,12 +41,11 @@ Invariants only. Each rule links to where its argument lives. If you are about t
 - `./tests/run.sh` runs every check against a throwaway site in `.wp-test/`, and builds the site first when that folder is missing. Delete `.wp-test/` to rebuild. The last line must be `All checks passed.` with a clean `debug.log`.
 - **After a package commit, run `composer update maithemewp/mai-theme-core` here.** `vendor/` symlinks the package, so code edits are live at once. A file added to the package's `autoload.files` only loads once Composer rebuilds its file list, and `composer.lock` only moves with this.
 - `php ~/LocalPackages/mai-theme-core/tests/run.php` tests the package with no install.
-- **Nothing launches a visible browser.** The Site Editor check runs headless.
 - **A test for a fixed bug should fail against the old behaviour.** Check that it does.
 
 ## Docs
 
-- `docs/specs/` is the agreed design. `docs/plans/` holds build plans and the skill draft.
+- `docs/specs/` is the agreed design. `docs/plans/` holds the build plans.
 - `STATE.md` says where the work stands. `TODO.md` lists what is open. `CHANGES.md` is the changelog.
 - `AGENTS.md` is the real file. `CLAUDE.md` is a symlink to it: `ln -s AGENTS.md CLAUDE.md`. Edit `AGENTS.md`.
 

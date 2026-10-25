@@ -2,9 +2,8 @@
 
 ## Waiting on Mike
 
-- [ ] **Switch `~/Themes/mai-theme` to `main`.** It is still the v1 checkout, with this theme as a worktree at `~/Themes/mai-theme-v3`. The skill and the docs name `~/Themes/mai-theme`. Touching that folder needs Mike's yes.
-- [ ] **Install the `mai-theme-scaffold` skill once `~/Themes/mai-theme` holds `main`.** Mike walked the draft on 2026-10-25. Move it to `~/.agents/skills/mai-theme-scaffold/`, delete its "Status: draft" paragraph, and point balloon-juice's `CONVENTIONS.md` at it.
-- [ ] **Trim `AGENTS.md` when the skill installs,** as the spec's "Conventions" says. Keep the pointer to the skill, the rules about this repo only (the two pattern copies, the name check in `tests/run.sh`, pushing and tagging, and running the tests), and an empty "This site" section.
+- [ ] **Point balloon-juice's `CONVENTIONS.md` at the `mai-theme-scaffold` skill,** now installed at `~/.agents/skills/mai-theme-scaffold/`. It is a client repo, so it waits on Mike's yes.
+- [ ] **Decide whether `master`, `develop`, and `v3` are deleted on GitHub.** All three still exist. `master` and `develop` point at v1's last commit, which the `v1` branch also holds, and `v3` equals `main`.
 - [ ] **Make Mai Content Areas public with an updater,** and `main` as the stable branch, the way Mai Columns ships. The installer needs it before the theme goes on a real site. Making the repo public needs his explicit go-ahead.
 - [ ] **Switch the path repositories to GitHub and commit `vendor/`.** That covers `mai-theme-core` here, and the engine packages in Mai Content Areas. Regenerate `composer.lock` after, because it pins the local path package today.
 - [ ] **Name the optional Mai plugins.** The spec lists optional plugins, such as Mai Performance Images and Mai Site Help, that the installer does not offer yet. It waits on Mike to name the list.

@@ -253,7 +253,7 @@ php ~/LocalPackages/mai-theme-core/tests/run.php
 - **`STATE.md`** says where the work stands now.
 - **`TODO.md`** lists what is open.
 - **`CHANGES.md`** is the changelog.
-- **`docs/`** holds the spec, the build plans, and the draft of the `mai-theme-scaffold` skill.
+- **`docs/`** holds the spec and the build plans. The house conventions are in the `mai-theme-scaffold` skill, at `~/.agents/skills/mai-theme-scaffold/`.
 
 ## License
 
