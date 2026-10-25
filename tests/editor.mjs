@@ -3,7 +3,7 @@
  *
  *   WP=$PWD/.wp-test/core node tests/editor.mjs
  *
- * Run through `tests/setup.sh --run`, which starts the server this reads.
+ * Run through `tests/run.sh`, which starts the server this reads.
  * Drives headless Chromium and never opens a window.
  *
  * - The theme ships exactly the templates and parts it should, no more.
@@ -33,7 +33,7 @@ import { fileURLToPath } from 'node:url';
 const WP = process.env.WP;
 
 if ( ! WP ) {
-	console.error( 'Set WP to the throwaway site, such as WP=$PWD/.wp-test/core, or run ./tests/setup.sh --run.' );
+	console.error( 'Set WP to the throwaway site, such as WP=$PWD/.wp-test/core, or run ./tests/run.sh.' );
 	process.exit( 1 );
 }
 

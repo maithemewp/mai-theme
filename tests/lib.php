@@ -3,13 +3,13 @@
  * Helpers shared by every check script.
  *
  * Check scripts do not load WordPress themselves. They read pages over HTTP from
- * the server `tests/setup.sh --run` starts, because that is the only way to see
+ * the server `tests/run.sh` starts, because that is the only way to see
  * what a visitor gets: the real request, the real template, the real `<head>`.
  * When a script needs to change the site first, it runs PHP inside it with
  * `wp_cli_php()`, in a separate process, so the site it changes is the one the
  * server reads.
  *
- * Run a script through `tests/setup.sh --run`, which sets `WP` and starts the
+ * Run a script through `tests/run.sh`, which sets `WP` and starts the
  * server. Each script ends with `done()`, which prints its totals and sets its
  * exit code. A script that stops before `done()`, or forgets it, still exits 1,
  * so it can never pass by printing nothing.
@@ -131,7 +131,7 @@ function fetch_url( string $url ): array {
 	$headers = http_get_last_response_headers();
 
 	if ( false === $body || ! is_array( $headers ) || 1 !== preg_match( '~^HTTP/\S+\s+(\d{3})~', $headers[0] ?? '', $matches ) ) {
-		fwrite( STDERR, "Cannot reach $url. Is the test server running? Run ./tests/setup.sh --run.\n" );
+		fwrite( STDERR, "Cannot reach $url. Is the test server running? Run ./tests/run.sh.\n" );
 		exit( 1 );
 	}
 
@@ -180,7 +180,7 @@ function request( string $url, array $cookies = [], ?array $form = null ): array
 	$response = http_get_last_response_headers();
 
 	if ( false === $body || ! is_array( $response ) || 1 !== preg_match( '~^HTTP/\S+\s+(\d{3})~', $response[0] ?? '', $matches ) ) {
-		fwrite( STDERR, "Cannot reach $url. Is the test server running? Run ./tests/setup.sh --run.\n" );
+		fwrite( STDERR, "Cannot reach $url. Is the test server running? Run ./tests/run.sh.\n" );
 		exit( 1 );
 	}
 
@@ -248,7 +248,7 @@ function wp_cli_php( string $code ): string {
 	$wp = getenv( 'WP' );
 
 	if ( ! is_string( $wp ) || ! is_file( $wp . '/wp-load.php' ) ) {
-		fwrite( STDERR, "Set WP to the test site's core folder, or run the checks through ./tests/setup.sh --run.\n" );
+		fwrite( STDERR, "Set WP to the test site's core folder, or run the checks through ./tests/run.sh.\n" );
 		exit( 1 );
 	}
 

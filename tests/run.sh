@@ -2,12 +2,11 @@
 #
 # Stand up a throwaway WordPress with this theme, and run every check against it.
 #
-# Modelled on Mai Content Areas' tests/setup.sh. SQLite rather than MySQL, so it
+# Modelled on Mai Content Areas' tests/run.sh. SQLite rather than MySQL, so it
 # needs no database server: WordPress core plus the SQLite integration drop-in,
 # both from GitHub.
 #
-#   ./tests/setup.sh            # build the site, then run the checks
-#   ./tests/setup.sh --run      # just run the checks against an existing site
+#   ./tests/run.sh              # build the site if .wp-test/ is missing, then run the checks
 #
 # The theme is linked in twice, as mai-theme and as acme. A client copy is the
 # starter under another folder name, and the checks switch between the two to
@@ -74,7 +73,7 @@ run_tests() {
 	local failed=0
 
 	if [ ! -f "$WP/wp-load.php" ]; then
-		echo "No test site in $WP. Run ./tests/setup.sh first to build it." >&2
+		echo "No test site in $WP. Delete .wp-test/ and run ./tests/run.sh to build it." >&2
 		return 1
 	fi
 
@@ -95,7 +94,7 @@ run_tests() {
 	stray="$( printf '%s' "$stray" | grep -vE ':mai-theme-(core|scaffold)$' || true )"
 
 	if [ "$found" -gt 1 ]; then
-		echo "The name check could not read every path it scans (grep exited $found). Check the list in tests/setup.sh against the theme's folders."
+		echo "The name check could not read every path it scans (grep exited $found). Check the list in tests/run.sh against the theme's folders."
 		failed=1
 	elif [ -n "$stray" ]; then
 		echo "Names the theme must not carry, in its templates, parts, patterns, styles, theme.json, CSS, or PHP:"
@@ -160,7 +159,12 @@ run_tests() {
 	return $failed
 }
 
-if [ "${1:-}" = "--run" ]; then
+if [ "$#" -gt 0 ]; then
+	echo "tests/run.sh takes no options. It builds the test site when .wp-test/ is missing and reruns the checks otherwise. Delete .wp-test/ to rebuild it." >&2
+	exit 1
+fi
+
+if [ -f "$WP/wp-load.php" ]; then
 	run_tests
 	exit $?
 fi

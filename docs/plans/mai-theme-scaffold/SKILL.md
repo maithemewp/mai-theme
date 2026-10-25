@@ -31,7 +31,7 @@ The reasons behind each rule are in the spec, `~/Themes/mai-theme/docs/specs/202
 - `styles/blocks/<block>/`: block styles, as JSON.
 - `assets/css/blocks/<namespace>/<block>.css`: per-block CSS.
 - `assets/fonts/`: self-hosted fonts and their licences.
-- `tests/`: `setup.sh` and the checks it runs.
+- `tests/`: `run.sh` and the checks it runs.
 - `docs/`: `ideas`, `specs`, `plans`, `runbooks`.
 - `vendor/`: the Composer package. Never edited.
 
@@ -125,7 +125,7 @@ The token names are a contract: future patterns refer to them. Add freely. Renam
 
 - `docs/` has the four folders: `ideas`, `specs`, `plans`, `runbooks`. Files are `YYYY-MM-DD-<slug>.md`.
 - The README holds numbered procedures in ASD-STE100: numbered, one imperative instruction per step, under 20 words, commands in code blocks, warnings before the step they guard.
-- `./tests/setup.sh` builds a throwaway SQLite site in `.wp-test/` and runs every check. `--run` reruns them. The run must end `All checks passed.` with a clean `debug.log`.
+- `./tests/run.sh` runs every check against a throwaway SQLite site in `.wp-test/`, building the site first when that folder is missing. The run must end `All checks passed.` with a clean `debug.log`.
 - Browser checks run headless.
 
 ## Keeping this file honest

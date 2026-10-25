@@ -20,7 +20,7 @@ Invariants only. Each rule links to where its argument lives. If you are about t
 
 ## House rules
 
-- **The starter never relies on Mai Slots rules for base content.** No block in the starter's markup carries a "Show when" rule (`maiSlotsRules`). Where posts and pages need different blocks, they get different parts or templates, as `entry-header` and `page-header` do. `tests/setup.sh` fails when `maiSlotsRules` appears. → spec, "Conventions"
+- **The starter never relies on Mai Slots rules for base content.** No block in the starter's markup carries a "Show when" rule (`maiSlotsRules`). Where posts and pages need different blocks, they get different parts or templates, as `entry-header` and `page-header` do. `tests/run.sh` fails when `maiSlotsRules` appears. → spec, "Conventions"
 - **A value is set once, in `theme.json`.** A block in a template, part, or pattern carries a style setting only when it really differs from `theme.json`. A width equal to a `theme.json` size uses its variable, `var(--wp--style--global--content-size)` or `var(--wp--style--global--wide-size)`. → spec, "Conventions" and "theme.json"
 
 ## Templates and slots
@@ -59,7 +59,7 @@ Invariants only. Each rule links to where its argument lives. If you are about t
 ## Code
 
 - PHP 8.4. `declare( strict_types=1 );` in every PHP file.
-- **`mai-theme` names this theme and its package. `mai` names what the theme does.** Hooks start `mai_`, as in `mai_dependencies`. Stylesheet handles are `mai` and `mai-<namespace>-<block>`. CSS variables start `--mai-`. Pattern slugs, bindings, and blocks use `mai/`. `tests/setup.sh` fails on any other `mai-theme-` name in the theme's code. → spec, "The repo"
+- **`mai-theme` names this theme and its package. `mai` names what the theme does.** Hooks start `mai_`, as in `mai_dependencies`. Stylesheet handles are `mai` and `mai-<namespace>-<block>`. CSS variables start `--mai-`. Pattern slugs, bindings, and blocks use `mai/`. `tests/run.sh` fails on any other `mai-theme-` name in the theme's code. → spec, "The repo"
 - **Per-block CSS** goes in `assets/css/blocks/<namespace>/<block>.css`. **Block styles** go in `styles/blocks/<block>/`. → spec, "CSS"
 - **`style.css` holds only what `theme.json` cannot say.**
 - Comments explain why, not what.
@@ -77,7 +77,7 @@ Invariants only. Each rule links to where its argument lives. If you are about t
 
 ## Testing
 
-- `./tests/setup.sh` builds a throwaway site in `.wp-test/` and runs every check. `./tests/setup.sh --run` reruns against it. The last line must be `All checks passed.` with a clean `debug.log`.
+- `./tests/run.sh` runs every check against a throwaway site in `.wp-test/`, and builds the site first when that folder is missing. Delete `.wp-test/` to rebuild. The last line must be `All checks passed.` with a clean `debug.log`.
 - **After a package commit, run `composer update maithemewp/mai-theme-core` here.** `vendor/` symlinks the package, so code edits are live at once. A file added to the package's `autoload.files` only loads once Composer rebuilds its file list, and `composer.lock` only moves with this.
 - `php ~/LocalPackages/mai-theme-core/tests/run.php` tests the package with no install.
 - **Nothing launches a visible browser.** The Site Editor check runs headless.

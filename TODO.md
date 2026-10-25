@@ -2,7 +2,8 @@
 
 ## Waiting on Mike
 
-- [ ] **Walk the `mai-theme-scaffold` skill draft** at `docs/plans/mai-theme-scaffold/SKILL.md`. After that it moves to `~/.agents/skills/mai-theme-scaffold/` and balloon-juice's `CONVENTIONS.md` points at it.
+- [ ] **Install the `mai-theme-scaffold` skill once `v3` becomes `main`.** Mike walked the draft on 2026-10-25. Move it to `~/.agents/skills/mai-theme-scaffold/`, delete its "Status: draft" paragraph, and point balloon-juice's `CONVENTIONS.md` at it.
+- [ ] **Trim `AGENTS.md` when the skill installs,** as the spec's "Conventions" says. Keep the pointer to the skill, the rules about this repo only (the two pattern copies, the name check in `tests/run.sh`, pushing and tagging, and running the tests), and an empty "This site" section.
 - [ ] **Approve the first push.** `v3` becomes `main` and v1 moves to a `v1` branch on `maithemewp/mai-theme`. Pushing, tagging, and releasing each need his yes.
 - [ ] **Make Mai Content Areas public with an updater,** and `main` as the stable branch, the way Mai Columns ships. The installer needs it before the theme goes on a real site. Making the repo public needs his explicit go-ahead.
 - [ ] **Switch the path repositories to GitHub and commit `vendor/`.** That covers `mai-theme-core` here, and the engine packages in Mai Content Areas. Regenerate `composer.lock` after, because it pins the local path package today.
@@ -38,7 +39,7 @@ See the spec, "Later: not in the starter".
 **In the theme's tests:**
 - [ ] **Measure a full-width group inside a sidebar template's content.** Only page, Wide, and Narrow measure one today.
 - [ ] **Make two navigation checks fail without the CSS.** They pass without it. Core's path with no overlay part is untested too.
-- [ ] **Tidy `tests/setup.sh`.** It resolves the package folders after the slow download, writes the port in two places, and throws away log entries made during the build.
+- [ ] **Tidy `tests/run.sh`.** It resolves the package folders after the slow download, writes the port in two places, and throws away log entries made during the build.
 - [ ] **Rename the test internals that still say `mai_theme_`,** such as `$GLOBALS['mai_theme_tests']`, the `_mai_theme_tests` meta key, and the `mai-theme-slots-test` slug.
 - [ ] **File the editor check's post under `posts`, not `pages`,** in `tests/editor.php`.
 - [ ] **Make the editor check's login wait stricter.** Its `/wp-admin/` pattern also matches a bounce back to the login page with `redirect_to` in the URL.

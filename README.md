@@ -209,7 +209,7 @@ Fixes to the plumbing ship in the `maithemewp/mai-theme-core` package. Until the
 4. Run the checks.
 
    ```sh
-   ./tests/setup.sh --run
+   ./tests/run.sh
    ```
 
 5. Commit `composer.lock` and `vendor/`.
@@ -229,21 +229,17 @@ The checks run against a throwaway WordPress site in `.wp-test/`. It uses SQLite
 
 It needs Mai Content Areas and Mai Columns checked out in `~/Plugins`, each with its build, and the plumbing package in `~/LocalPackages`.
 
-1. Build the site and run every check.
+**Warning:** The checks use port 8430. Stop anything else on that port first.
+
+1. Run every check.
 
    ```sh
-   ./tests/setup.sh
+   ./tests/run.sh
    ```
 
-2. Run the checks again against the same site.
+The first run builds the site, which downloads WordPress and takes a minute. Later runs reuse it. To rebuild it, delete `.wp-test/` and run the checks again.
 
-   ```sh
-   ./tests/setup.sh --run
-   ```
-
-Building the site downloads WordPress, so it takes a minute. Running the checks again reuses the site.
-
-A passing run ends with `All checks passed.` and a clean `debug.log`. The headless Site Editor check uses port 8430. Stop anything else on that port first.
+A passing run ends with `All checks passed.` and a clean `debug.log`.
 
 The plumbing package has its own tests, which need no install.
 
