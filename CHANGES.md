@@ -14,6 +14,7 @@
 * Added: Figtree, self-hosted.
 * Added: Plumbing through the `maithemewp/mai-theme-core` package: a dependency installer for Mai Content Areas and Mai Columns, a login page in the theme's look, Gravity Forms colours, video embed shapes, empty paragraph removal, and an Appearance, Patterns link.
 * Added: `./tests/run.sh`, a throwaway test site with a smoke check, a slots check, an installer check, and a headless Site Editor check.
+* Added: Text fields, text areas, and dropdowns never drop below 16px, so iPhone and iPad Safari do not zoom in when one is tapped.
 * Changed: Widths are native block settings. The Wide, Narrow, and With sidebar classes and their CSS are gone.
 * Changed: Names drop `-theme` for what the theme does: the `mai` stylesheet handle, `mai-<namespace>-<block>` block CSS handles, the `mai_dependencies` filter, the `--mai-site-min-height` variable, and `mai/` pattern slugs. `functions.php` uses `Mai\Theme`, and the package uses `Mai\Theme\Core`.
 * Removed: The "Archive: List" layout pattern, replaced by the post designs.

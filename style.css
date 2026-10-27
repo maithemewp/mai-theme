@@ -45,6 +45,13 @@
 	font: inherit;
 }
 
+/* Never below 16px in a field you type in or pick from. iOS and iPadOS Safari zoom the page into
+   any field under 16px when it is tapped, and the reader has to pinch back out. 1em keeps larger
+   inherited sizes. :where() keeps it at zero specificity, so a field a site styles still wins. */
+:where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], [type="submit"], [type="button"], [type="reset"], [type="image"]), textarea, select) {
+	font-size: max(16px, 1em);
+}
+
 :root {
 	text-underline-offset: 2px;
 	/* Brand color on native checkboxes and radios. */
